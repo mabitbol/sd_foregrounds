@@ -1,0 +1,21 @@
+Spectral Distortion Foreground Study
+
+1) Search literature for all possible foregrounds for PIXIE like experiment and determine amplitude and spectrum (SED)
+2) Fisher Matrix forecast
+
+--just monopole brightness (specific intensity) no anisotropies
+
+
+Signals:
+- Blackbody CMB
+- Thermal SZ ("y") + relativistic effects
+- mu distortion
+- r-type ("residual", or non-mu/non-y) distortion
+- Cosmic Infrared Background (dusty galaxies)
+- Galactic dust
+- Galactic synchrotron
+- Extragalactic synchrotron/radio emission
+- Galactic "anomalous microwave emission" (perhaps spinning dust)
+- Galactic free-free emission
+- Emission from various spectral lines (e.g., CO -- see for example
+
