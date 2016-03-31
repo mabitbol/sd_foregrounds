@@ -79,12 +79,13 @@ def DeltaI_reltSZ(freqs, tau_ICM, kT_moments): #freqs in Hz, tau_ICM dimensionle
 ### Foreground components from PlanckX2015 ###
 # Here we are in brightness tempearture (as a first pass) with unit K Rayleigh Jeans
 # I list the free params as well as the priors that planck used N for a gaussian with mean and std
+# I've put the best fit Planck values as defaults
 
 # Thermal Dust
 # Params Ad, Bd, Td which are amplitude, index, and temperature
 # priors: Ad>0, Bd ~ N(1.55, 0.1), Td ~ N(23, 3)
 # oh no wait this is the polarized sed...?!
-def thermal_dust(freqs, Ad, Bd, Td):
+def thermal_dust(freqs, Ad=163., Bd=1.53, Td=21.):
     f0 = 545.e9    #from planck params
     gam = hplanck/(kboltz*Td)   
     return Ad * (freqs/f0)**(Bd+1.) * (np.exp(gam*f0)-1) / (np.exp(gam*freqs)-1)
@@ -93,7 +94,7 @@ def thermal_dust(freqs, Ad, Bd, Td):
 # Params As, alpha : amplitude and shift parameter
 # priors: As>0, alpha>0
 # oh no wait this is the polarized sed...?!
-def synchrotron(freqs, As, alpha):
+def synchrotron(freqs, As=20., alpha=None):
     #fs = need an external template from galprop?
     f0 = 408.e6
     #return As * (f0/freqs)**2. * fs(freqs/alpha) / fs(f0/alpha)
@@ -103,7 +104,7 @@ def synchrotron(freqs, As, alpha):
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp
 # priors: logEM ~ uniform, Te ~ N(7000, 500)
 # Ok I think this one is at least in intensity (since free free isn't really polarized)
-def freefree(freqs, EM, Te):
+def freefree(freqs, EM=15.e-3, Te=7000.):
     Tef = (Te * 10**-4)**(-3./2.)
     f9 = freqs / (10**9)
     gff = np.log(np.exp(5.960 - np.sqrt(3.)/np.pi * np.log(f9*Tef)) + np.e)
@@ -114,28 +115,23 @@ def freefree(freqs, EM, Te):
 # Params Asd, fp : amplitude and peak frequency
 # priors: Asd>0, fp ~ N(19, 3), fp>0
 # planck has 2 sets of params here
-def ame(freqs, Asd, fp):
+def ame(freqs, Asd=93., fp=19.):
     #fsd = need external template?
     fp0 = 30.e9
     f01 = 22.8e9
     f02 = 41.e9
     f0 = f01
-    return Asd * (f0/freqs)**2 * fsd(freqs*fp0/fp) / fsd(f0*fp0/fp)
+    return Asd * (f0/freqs)**2 #* fsd(freqs*fp0/fp) / fsd(f0*fp0/fp)
     
 # SZ
 # params Asz>0
 # including this as a check but shouldnt it be the same as the y distortion 
-def sz(freqs, ysz):
+def sz(freqs, ysz=1.4e-6):
     X = hplanck*freqs/(kboltz*TCMB)
     gf = (np.exp(X)-1)**2 / (X*X*np.exp(X))
     return (ysz*10**6)*TCMB * ( (X*np.exp(X)+1.)/(np.exp(X)-1.) - 4.) / gf
 
 # Line emission
 # this needs more work. should look in paper about CO emission as spectral distortion
-
-
-
-
-
 
 
