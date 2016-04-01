@@ -19,3 +19,11 @@ Signals:
 - Galactic free-free emission
 - Emission from various spectral lines (e.g., CO -- see for example
 
+
+3/31/16
+- Working on adding the planck best fit params for the foregrounds
+- Figuring out units as well
+
+4/1/16 
+- Adding templates
+- Comparing with plots made by Brad for spectrometer proposal
