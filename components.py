@@ -4,6 +4,7 @@ import glob
 from scipy import interpolate
 from scipy import integrate
 from scipy import special
+from astropy.io import fits
 import matplotlib
 matplotlib.use('pdf')
 matplotlib.rc('font', family='serif', serif='cm10')
@@ -77,14 +78,13 @@ def DeltaI_reltSZ(freqs, tau_ICM, kT_moments): #freqs in Hz, tau_ICM dimensionle
     return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * ( tau_ICM * (kT_moments[0]/m_elec) * gfuncrel + tau_ICM/2.0 * ddgfuncrel * (kT_moments[0]/m_elec)**2.0 * w1 + tau_ICM/6.0 * dddgfuncrel * (kT_moments[0]/m_elec)**3.0 * w2 + tau_ICM/24.0 * ddddgfuncrel * (kT_moments[0]/m_elec)**4.0 * w3)
 
 ### Foreground components from PlanckX2015 ###
-# Here we are in brightness tempearture (as a first pass) with unit K Rayleigh Jeans
+# Here we are in brightness tempearture (as a first pass) with unit micro K Rayleigh Jeans
 # I list the free params as well as the priors that planck used N for a gaussian with mean and std
 # I've put the best fit Planck values as defaults
 
 # Thermal Dust
 # Params Ad, Bd, Td which are amplitude, index, and temperature
 # priors: Ad>0, Bd ~ N(1.55, 0.1), Td ~ N(23, 3)
-# oh no wait this is the polarized sed...?!
 def thermal_dust(freqs, Ad=163., Bd=1.53, Td=21.):
     f0 = 545.e9    #from planck params
     gam = hplanck/(kboltz*Td)   
@@ -93,12 +93,20 @@ def thermal_dust(freqs, Ad=163., Bd=1.53, Td=21.):
 # Synchrotron (based on Haslam and GALPROP) 
 # Params As, alpha : amplitude and shift parameter
 # priors: As>0, alpha>0
-# oh no wait this is the polarized sed...?!
-def synchrotron(freqs, As=20., alpha=None):
-    #fs = need an external template from galprop?
-    f0 = 408.e6
-    #return As * (f0/freqs)**2. * fs(freqs/alpha) / fs(f0/alpha)
-    return As * (f0/freqs)**2.
+# best fit alpha is actually 0.26? from where?
+def synchrotron(freqs, As=20.e6, alpha=1.):
+    #for details use synch_temp.info and synch_temp[2].columns 
+    # frequency is in GHz in the file and ranges from 1 MHz to 100 THz
+    # spectral radiance is in the next field
+    # interpolate to other frequencies
+    #interp will throw an error if we give it frequencies outside of the range
+    synch_temp = fits.open('templates/COM_CompMap_Synchrotron-commander_0256_R2.00.fits')
+    synch_nu = synch_temp[2].data.field(0)          # GHz
+    synch_nu *= 1.e9                                # Hz
+    synch_I = synch_temp[2].data.field(1)           # W/Hz/sr/m^2
+    fs = interpolate.interp1d(synch_nu, synch_I)
+    f0 = 408.e6                                     # Hz
+    return As * (f0/freqs)**2 * fs(freqs/alpha) / fs(f0/alpha)
 
 # Free-free 
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp
@@ -109,19 +117,25 @@ def freefree(freqs, EM=15.e-3, Te=7000.):
     f9 = freqs / (10**9)
     gff = np.log(np.exp(5.960 - np.sqrt(3.)/np.pi * np.log(f9*Tef)) + np.e)
     tau = 0.05468 * Tef * EM * gff / f9**2
-    return (1.-np.exp(-tau))*Te*10**6
+    return (1. - np.exp(-tau)) * Te *10**6
 
 # AME
 # Params Asd, fp : amplitude and peak frequency
 # priors: Asd>0, fp ~ N(19, 3), fp>0
 # planck has 2 sets of params here
-def ame(freqs, Asd=93., fp=19.):
-    #fsd = need external template?
+def ame(freqs, Asd=93., fp=19., ):
+    # template freqs go from 50 MHz to 500 GHz...
+    # had to add a fill value of 1.e-6 at high frequencies...
+    ame_temp = fits.open('templates/COM_CompMap_AME-commander_0256_R2.00.fits')
+    ame_nu = ame_temp[2].data.field(0)
+    ame_nu *= 1.e9                      # Hz 
+    ame_I = ame_temp[2].data.field(1)   # Jy cm^2 /sr/H
+    fsd = interpolate.interp1d(ame_nu, ame_I, bounds_error=False, fill_value=1.e-6)
     fp0 = 30.e9
     f01 = 22.8e9
     f02 = 41.e9
     f0 = f01
-    return Asd * (f0/freqs)**2 #* fsd(freqs*fp0/fp) / fsd(f0*fp0/fp)
+    return Asd * (f0/freqs)**2 * fsd(freqs*fp0/fp) / fsd(f0*fp0/fp)
     
 # SZ
 # params Asz>0
@@ -134,4 +148,9 @@ def sz(freqs, ysz=1.4e-6):
 # Line emission
 # this needs more work. should look in paper about CO emission as spectral distortion
 
+
+# convert from uK_rj to spectral radiance in W/Hz/sr/m^2
+# frequencies are expected in Hz
+def krj_to_radiance(nu, y):
+    return 2. * nu*nu /(clight^2) * kboltz * y *10**-6
 
