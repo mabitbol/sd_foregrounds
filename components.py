@@ -46,7 +46,7 @@ def DeltaI_mu(freqs, mu_amp): #freqs in Hz, mu_amp dimensionless, DeltaI_mu in W
 def DeltaI_r(freqs, r_amp): #freqs in Hz, r_amp dimensionless, DeltaI_r in W/m^2/Hz/sr
     X = hplanck*freqs/(kboltz*TCMB)
     # first r-distortion eigenmode from Jens (Fig. 4 of 1306.5751)
-    rfile = np.loadtxt('PCA_mode_1.dat')
+    rfile = np.loadtxt('templates/PCA_mode_1.dat')
     Xr = hplanck*rfile[:,0]*1e9/(kboltz*TCMB) #convert from GHz to Hz
     DeltaIr = rfile[:,1]*1e-18*r_amp #conver to W/m^2/Hz/sr
     # linearly interpolate (set to zero above the highest frequency in Jens's file (his lowest frequency is 30 GHz, so things are OK on that end--put in a crazy value so we catch it if needed))
