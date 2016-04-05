@@ -12,6 +12,7 @@ fontProperties = {'family':'sans-serif',
     'weight' : 'normal', 'size' : 20}
 import matplotlib.pyplot as plt
 from components import *
+from foregrounds import *
 
 """
 This code specifies amplitudes for the components and computes the full signal.
@@ -50,54 +51,68 @@ PIXIE_DeltaI_reltSZ = DeltaI_reltSZ(PIXIE_freqs, tau_ICM_fid, kT_moments_fid)
 # total
 PIXIE_DeltaI_tot = PIXIE_DeltaI_DeltaT + PIXIE_DeltaI_y + PIXIE_DeltaI_mu + PIXIE_DeltaI_r + PIXIE_DeltaI_reltSZ
 
-dust = thermal_dust(PIXIE_freqs)
-synch = synchrotron(PIXIE_freqs)
-brem = freefree(PIXIE_freqs)
-spinning = ame(PIXIE_freqs)
-sunyaev = sz(PIXIE_freqs)
-foregrounds = dust+synch+brem+spinning+sunyaev
+dust = krj_to_radiance(PIXIE_freqs, thermal_dust(PIXIE_freqs))
+synch = krj_to_radiance(PIXIE_freqs, synchrotron(PIXIE_freqs))
+brem = krj_to_radiance(PIXIE_freqs, freefree(PIXIE_freqs))
+spinning = krj_to_radiance(PIXIE_freqs, ame(PIXIE_freqs))
+sunyaev = krj_to_radiance(PIXIE_freqs, sz(PIXIE_freqs))
+#foregrounds = dust+synch+brem+spinning+sunyaev
 
 plt.figure()
 plt.loglog(PIXIE_freqs/1.e9, dust, label='dust')
-plt.xlabel('GHz')
-plt.ylabel('uKrj')
-plt.grid()
-plt.savefig('dust')
-
-plt.figure()
 plt.loglog(PIXIE_freqs/1.e9, synch, label='synch')
-plt.xlabel('GHz')
-plt.ylabel('uKrj')
-plt.grid()
-plt.savefig('synch')
-
-plt.figure()
 plt.loglog(PIXIE_freqs/1.e9, brem, label='free free')
-plt.xlabel('GHz')
-plt.ylabel('uKrj')
-plt.grid()
-plt.savefig('brem')
-
-plt.figure()
 plt.loglog(PIXIE_freqs/1.e9, spinning, label='ame')
+plt.title('foregrounds')
+plt.ylabel('Jy/sr')
 plt.xlabel('GHz')
-plt.ylabel('uKrj')
-plt.grid()
-plt.savefig('ame')
-
-plt.figure()
-plt.semilogx(PIXIE_freqs/1.e9, sunyaev, label='sz')
-plt.xlabel('GHz')
-plt.ylabel('uKrj')
-plt.grid()
-plt.savefig('sz')
-
-plt.figure()
-plt.semilogx(PIXIE_freqs/1.e9, foregrounds, label='total')
 plt.grid()
 plt.legend()
-plt.xlabel(r'$\nu \, [{\rm GHz}]$', fontsize=20)
-plt.savefig('foregroundtest')
+plt.savefig('allfg')
+
+
+if False:
+    plt.figure()
+    plt.loglog(PIXIE_freqs/1.e9, dust, label='dust')
+    plt.xlabel('GHz')
+    plt.ylabel('uKrj')
+    plt.grid()
+    plt.savefig('dust')
+
+    plt.figure()
+    plt.loglog(PIXIE_freqs/1.e9, synch, label='synch')
+    plt.xlabel('GHz')
+    plt.ylabel('uKrj')
+    plt.grid()
+    plt.savefig('synch')
+
+    plt.figure()
+    plt.loglog(PIXIE_freqs/1.e9, brem, label='free free')
+    plt.xlabel('GHz')
+    plt.ylabel('uKrj')
+    plt.grid()
+    plt.savefig('brem')
+
+    plt.figure()
+    plt.loglog(PIXIE_freqs/1.e9, spinning, label='ame')
+    plt.xlabel('GHz')
+    plt.ylabel('uKrj')
+    plt.grid()
+    plt.savefig('ame')
+
+    plt.figure()
+    plt.semilogx(PIXIE_freqs/1.e9, sunyaev, label='sz')
+    plt.xlabel('GHz')
+    plt.ylabel('uKrj')
+    plt.grid()
+    plt.savefig('sz')
+
+    plt.figure()
+    plt.semilogx(PIXIE_freqs/1.e9, foregrounds, label='total')
+    plt.grid()
+    plt.legend()
+    plt.xlabel(r'$\nu \, [{\rm GHz}]$', fontsize=20)
+    plt.savefig('foregroundtest')
 
 
 # plot
