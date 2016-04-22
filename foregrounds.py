@@ -55,7 +55,7 @@ def synchrotron(nu, As=20.0, alpha=0.26):
     fs = interpolate.interp1d(np.log10(synch_nu), np.log10(synch_I))
     numer_fs = 10.0**fs(np.log10(nu/alpha))
     denom_fs = 10.0**fs(np.log10(nu0/alpha))
-    return As * (f0/nu)**2 * numer_fs / denom_fs
+    return As * (nu0/nu)**2 * numer_fs / denom_fs
 
 # Free-free 
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp
