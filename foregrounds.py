@@ -13,6 +13,9 @@ kboltz=1.3806503e-23 #MKS
 clight=299792458.0 #MKS
 m_elec = 510.999 #keV!
 
+PIXIE_freq_min = 37.5e9 #central frequency of lowest channel (lower bound is 30 GHz)
+PIXIE_freq_max = 6.0225e12 #central frequency of highest channel (chose this to get 400 total channels)
+PIXIE_freqstep = 15.0e9
 
 # convert from uK_rj to spectral radiance in W/Hz/sr/m^2
 # frequencies are expected in Hz
@@ -103,3 +106,13 @@ def cmb(freqs, T=TCMB, A=3.0e-6):
     X = hplanck*freqs/(kboltz*T)
     gf = (np.exp(X)-1)**2 / (X*X*np.exp(X))
     return A/gf
+
+
+def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
+    PIXIE_freqs = np.arange(fmin, fmax + fstep, fstep)
+    return PIXIE_freqs
+
+def pixie_noise(PIXIE_freqs):
+    PIXIE_Nfreqs = len(PIXIE_freqs)
+    PIXIE_noise = 5.0e-26*np.ones(PIXIE_Nfreqs) #http://arxiv.org/abs/1105.2044 ; taken to be uncorrelated between channels; units W/m^2/Hz/sr 
+    return PIXIE_noise
