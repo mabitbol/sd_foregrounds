@@ -66,9 +66,15 @@ def synchrotron(nu, As=20.0, alpha=0.26):
 def freefree(nu, EM=13.0, Te=7000.0):
     T4 = (Te * 10**-4)**(-3./2.)
     f9 = nu / (10**9)
-    gff = np.log10(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log10(f9*T4)) + np.e) #JCH: should this be natural log instead of log_10? the paper doesn't say explicitly...
+    gff = np.log(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log(f9*T4)) + np.e) #JCH: should this be natural log instead of log_10? the paper doesn't say explicitly...
     tau = 0.05468 * (Te**(-3./2.)) * EM * gff / f9**2
     return (1.0 - np.exp(-tau)) * Te
+
+def freefree2(freqs, EM=100., Te=8000.):
+    nu = freqs*1.e-9
+    gff = np.log(4.955e-2 / nu) + 1.5 * np.log(Te)
+    tff = 3.014e-2 * (Te**-1.5) * (nu**-2) * EM * gff
+    return Te * (1. - np.exp(-tff))
 
 # AME
 # Params Asd, fp : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and peak frequency
