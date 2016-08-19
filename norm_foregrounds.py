@@ -17,13 +17,10 @@ PIXIE_freq_min = 37.5e9 #central frequency of lowest channel (lower bound is 30 
 PIXIE_freq_max = 6.0225e12 #central frequency of highest channel (chose this to get 400 total channels)
 PIXIE_freqstep = 15.0e9
 
-# convert from K_rj to spectral radiance in W/Hz/sr/m^2
+# convert from uK_rj to spectral radiance in W/Hz/sr/m^2
 # frequencies are expected in Hz
 def krj_to_radiance(nu, y):
     return 2.0 * nu*nu /(clight**2) * kboltz * y
-
-def radiance_to_krj(nu, y):
-    return y * clight**2 / (2. * kboltz * nu*nu)
 
 #blackbody T to W/Hz/sr/m^2
 def blackbody(nu, T):
@@ -41,19 +38,26 @@ def dbdt(nu, T):
 
 # Thermal Dust
 # Params Ad, Bd, Td which are amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody], spectral index, and temperature [K]
-def thermal_dust(nu, Ad=163.0e-6, Bd=1.51, Td=21.0):
+def thermal_dust(nu, Ad=1., Bd=1., Td=1.):
+    Ad *= 163.e-6
+    Bd *= 1.51
+    Td *= 21
+
     nu0 = 545.0e9   #planck frequency
     gam = hplanck/(kboltz*Td)   
     return Ad * (nu/nu0)**(Bd+1.0) * (np.exp(gam*nu0) - 1.0) / (np.exp(gam*nu) - 1.0)
 
 # Synchrotron (based on Haslam and GALPROP) 
 # Params As, alpha : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and shift parameter
-def synchrotron(nu, As=20.0, alpha=0.26):
+def synchrotron(nu, As=1., alpha=1.):
     #for details use synch_temp.info and synch_temp[2].columns 
     # frequency is in GHz in the file and ranges from 1 MHz to 100 THz
     # spectral radiance is in the next field
     # interpolate to other frequencies
     #interp will throw an error if we give it frequencies outside of the range
+    As *= 20.
+    alpha *= 0.26
+
     nu0 = 408.0e6                                     # Hz
     synch_temp = fits.open('templates/COM_CompMap_Synchrotron-commander_0256_R2.00.fits')
     synch_nu = synch_temp[2].data.field(0)          # GHz
@@ -66,14 +70,20 @@ def synchrotron(nu, As=20.0, alpha=0.26):
 
 # Free-free 
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp [K]
-def freefree(nu, EM=13.0, Te=7000.0):
+def freefree(nu, EM=1., Te=1.):
+    EM *= 13.
+    Te *= 7000.
+
     T4 = (Te * 10**-4)**(-3./2.)
     f9 = nu / (10**9)
     gff = np.log(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log(f9*T4)) + np.e) #JCH: should this be natural log instead of log_10? the paper doesn't say explicitly...
     tau = 0.05468 * (Te**(-3./2.)) * EM * gff / f9**2
     return (1.0 - np.exp(-tau)) * Te
 
-def freefree2(freqs, EM=100., Te=8000.):
+def freefree2(freqs, EM=1., Te=1.):
+    EM *= 100.
+    Te *= 8000.
+
     nu = freqs*1.e-9
     gff = np.log(4.955e-2 / nu) + 1.5 * np.log(Te)
     tff = 3.014e-2 * (Te**-1.5) * (nu**-2) * EM * gff
@@ -81,9 +91,12 @@ def freefree2(freqs, EM=100., Te=8000.):
 
 # AME
 # Params Asd, fp : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and peak frequency
-def ame(nu, Asd=92.0e-6, nup=19.0e9):
+def ame(nu, Asd=1., nup=1.):
     # template nu go from 50 MHz to 500 GHz...
     # had to add a fill value of 1.e-6 at high frequencies...
+    Asd *= 92.e-6
+    nup *= 19.e9
+
     nu0 = 22.8e9
     nup0 = 33.35e9
     ame_temp = fits.open('templates/COM_CompMap_AME-commander_0256_R2.00.fits')
