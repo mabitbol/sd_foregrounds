@@ -18,10 +18,14 @@ PIXIE_freq_max = 6.0225e12 #central frequency of highest channel (chose this to 
 PIXIE_freqstep = 15.0e9
 
 # convert from K_rj to spectral radiance in W/Hz/sr/m^2
+# 1 Jy = 1e-26 W / (Hz sr m^2)
 # frequencies are expected in Hz
+
+# Kelvin to W/Hz/sr/m^2
 def krj_to_radiance(nu, y):
     return 2.0 * nu*nu /(clight**2) * kboltz * y
 
+# W/Hz/sr/m^2 to Kelvin
 def radiance_to_krj(nu, y):
     return y * clight**2 / (2. * kboltz * nu*nu)
 
@@ -33,7 +37,14 @@ def blackbody(nu, T):
 def dbdt(nu, T):
     return 2.0 * (X*X*X*X) * np.exp(X) * (kboltz*T)**3 / (hplanck * clight)**2 / (np.exp(X) - 1.0)**2
 
+# CMB rms in brightness temp
+def cmb(freqs, T=TCMB, A=3.0e-6):
+    X = hplanck*freqs/(kboltz*T)
+    gf = (np.exp(X)-1)**2 / (X*X*np.exp(X))
+    return A/gf
 
+
+# UNITS ARE KELVIN
 ### Foreground components from PlanckX2015 ###
 # see Table 4 of https://arxiv.org/pdf/1502.01588v2.pdf
 # Here we are in brightness tempearture (as a first pass) with unit K Rayleigh Jeans
@@ -41,14 +52,16 @@ def dbdt(nu, T):
 
 # Thermal Dust
 # Params Ad, Bd, Td which are amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody], spectral index, and temperature [K]
-def thermal_dust(nu, Ad=163.0e-6, Bd=1.51, Td=21.0):
+# Params were 163e-6, 1.51, 21 but to match jens and some papers we use:
+def thermal_dust(nu, Ad=10.e-6, Bd=1.59, Td=19.6):
     nu0 = 545.0e9   #planck frequency
     gam = hplanck/(kboltz*Td)   
     return Ad * (nu/nu0)**(Bd+1.0) * (np.exp(gam*nu0) - 1.0) / (np.exp(gam*nu) - 1.0)
 
 # Synchrotron (based on Haslam and GALPROP) 
 # Params As, alpha : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and shift parameter
-def synchrotron(nu, As=20.0, alpha=0.26):
+# planck says As=20 but matching to Jens gives As~=10.
+def synchrotron(nu, As=10.0, alpha=0.26):
     #for details use synch_temp.info and synch_temp[2].columns 
     # frequency is in GHz in the file and ranges from 1 MHz to 100 THz
     # spectral radiance is in the next field
@@ -104,17 +117,19 @@ def sz(nu, ysz=1.4e-6):
     gf = (np.exp(X)-1)**2 / (X*X*np.exp(X))
     return ysz*TCMB * ( X*(np.exp(X)+1.)/(np.exp(X)-1.) - 4.) / gf #JCH: fixed some errors here
 
-# Line emission
-# this needs more work. should look in paper about CO emission as spectral distortion
+# CIB
+# params TCIB, kf
+# units are Jy / sr!!
+def cib_jy(nu, TCIB=18.5, KF=0.64):
+    X = hplanck*nu/(kboltz*TCIB)
+    nu0 = 3.e12
+    return 173.4 * TCIB**3 * (nu/nu0)**KF * X**3 / (np.exp(X) - 1.)
 
-# CIB emission
-# need to implement
+def cib(nu, TCIB=18.5, KF=0.64):
+    return radiance_to_krj(nu, cib_jy(nu, TCIB, KF)*1e-26)
 
-# CMB rms in brightness temp
-def cmb(freqs, T=TCMB, A=3.0e-6):
-    X = hplanck*freqs/(kboltz*T)
-    gf = (np.exp(X)-1)**2 / (X*X*np.exp(X))
-    return A/gf
+# CO Line emission
+
 
 
 def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
