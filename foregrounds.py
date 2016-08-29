@@ -17,11 +17,11 @@ PIXIE_freq_min = 37.5e9 #central frequency of lowest channel (lower bound is 30 
 PIXIE_freq_max = 6.0225e12 #central frequency of highest channel (chose this to get 400 total channels)
 PIXIE_freqstep = 15.0e9
 
-# convert from K_rj to spectral radiance in W/Hz/sr/m^2
 # 1 Jy = 1e-26 W / (Hz sr m^2)
 # frequencies are expected in Hz
 
 # Kelvin to W/Hz/sr/m^2
+# convert from K_rj to spectral radiance in W/Hz/sr/m^2
 def krj_to_radiance(nu, y):
     return 2.0 * nu*nu /(clight**2) * kboltz * y
 

@@ -85,3 +85,17 @@ def DeltaI_reltSZ(freqs, tau_ICM=3.89e-3, kT_moments=[0.208, 0.299, 0.892, 4.02]
 
 def kDeltaI_reltSZ(freqs, tau_ICM=3.89e-3, kT_moments=[0.208, 0.299, 0.892, 4.02]):
     return r2k(freqs, kDeltaI_reltSZ(freqs, tau_ICM, kT_moments))
+
+
+# recombination lines from template
+# file is in GHz and W / m^2 Hz sr
+def recombination(freqs, scale=1.0):
+    rdata = np.loadtxt('templates/recombination/total_spectrum_f.dat')
+    fs = rdata[:,0] * 1e9
+    recomb = rdata[:,1]
+    template = interpolate.interp1d(np.log10(fs), np.log10(recomb), fill_value=np.log10(1e-30), bounds_error=False)
+    return scale * 10.0**template(np.log10(freqs))
+
+def krecombination(freqs, scale=1.0):
+    return r2k(freqs, recombination(freqs, scale))
+
