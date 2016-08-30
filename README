@@ -3,10 +3,9 @@ Spectral Distortion Foreground Study
 1) Search literature for all possible foregrounds for PIXIE like experiment and determine amplitude and spectrum (SED)
 2) Fisher Matrix forecast
 
---just monopole brightness (specific intensity) no anisotropies
+--just monopole brightness (specific intensity) no anisotropies, relative to CMBT=2.725K
 
 Signals TODO:
-- CIB
 - CO lines (and other lines)
 - Extragalactic synchrotron (??)
 
@@ -22,13 +21,7 @@ Signals:
 - Extragalactic synchrotron/radio emission
 - Galactic "anomalous microwave emission" (perhaps spinning dust)
 - Galactic free-free emission
-- Emission from various spectral lines (e.g., CO -- see for example
+- CIB
 
+- #Emission from various spectral lines (e.g., CO -- see for example
 
-3/31/16
-- Working on adding the planck best fit params for the foregrounds
-- Figuring out units as well
-
-4/1/16 
-- Adding templates
-- Comparing with plots made by Brad for spectrometer proposal
