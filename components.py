@@ -99,3 +99,15 @@ def recombination(freqs, scale=1.0):
 def krecombination(freqs, scale=1.0):
     return r2k(freqs, recombination(freqs, scale))
 
+def pixie_sensitivity(freqs):
+    sdata = np.loadtxt('Sensitivities.dat')
+    fs = sdata[:,0] * 1e9
+    sens = sdata[:,1]
+    template = interpolate.interp1d(np.log10(fs), np.log10(sens), fill_value=np.log10(5e-24), bounds_error=False)
+    return 10.0**template(np.log10(freqs))
+
+def kpixie_sensitivity(freqs):
+    return r2k(freqs, pixie_sensitivity(freqs))
+
+
+

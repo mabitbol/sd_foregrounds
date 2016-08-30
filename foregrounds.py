@@ -82,7 +82,7 @@ def synchrotron(nu, As=10.0, alpha=0.26):
 def freefree(nu, EM=13.0, Te=7000.0):
     T4 = (Te * 10**-4)**(-3./2.)
     f9 = nu / (10**9)
-    gff = np.log(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log(f9*T4)) + np.e) #JCH: should this be natural log instead of log_10? the paper doesn't say explicitly...
+    gff = np.log(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log(f9*T4)) + np.e)
     tau = 0.05468 * (Te**(-3./2.)) * EM * gff / f9**2
     return (1.0 - np.exp(-tau)) * Te
 
