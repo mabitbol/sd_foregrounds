@@ -79,7 +79,7 @@ def synchrotron(nu, As=10.0, alpha=0.26):
 
 # Free-free 
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp [K]
-def freefree(nu, EM=13.0, Te=7000.0):
+def freefree(nu, EM=4.5, Te=7000.0):
     T4 = (Te * 10**-4)**(-3./2.)
     f9 = nu / (10**9)
     gff = np.log(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log(f9*T4)) + np.e)
