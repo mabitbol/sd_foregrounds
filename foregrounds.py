@@ -98,13 +98,13 @@ def ame(nu, Asd=92.0e-6, nup=19.0e9):
     # template nu go from 50 MHz to 500 GHz...
     # had to add a fill value of 1.e-6 at high frequencies...
     nu0 = 22.8e9
-    nup0 = 33.35e9
+    nup0 = 30.e9
     ame_temp = fits.open('templates/COM_CompMap_AME-commander_0256_R2.00.fits')
     ame_nu = ame_temp[3].data.field(0)
     ame_nu *= 1.e9                      # Hz 
     ame_I = ame_temp[3].data.field(1)   # Jy cm^2 /sr/H
-    ame_I *= 1.0e26
-    fsd = interpolate.interp1d(np.log10(ame_nu), np.log10(ame_I), bounds_error=False, fill_value=1.e-6)
+    ame_I /= 1.0e26
+    fsd = interpolate.interp1d(np.log10(ame_nu), np.log10(ame_I), bounds_error=False, fill_value=1.e-30)
     numer_fsd = 10.0**fsd(np.log10(nu*nup0/nup))
     denom_fsd = 10.0**fsd(np.log10(nu0*nup0/nup))
     return Asd * (nu0/nu)**2 * numer_fsd / denom_fsd
