@@ -103,8 +103,9 @@ def pixie_sensitivity(freqs):
     sdata = np.loadtxt('Sensitivities.dat')
     fs = sdata[:,0] * 1e9
     sens = sdata[:,1]
-    template = interpolate.interp1d(np.log10(fs), np.log10(sens), fill_value=np.log10(5e-24), bounds_error=False)
-    return 10.0**template(np.log10(freqs)) / np.sqrt(
+    template = interpolate.interp1d(np.log10(fs), np.log10(sens), fill_value=(-23.3, -21), bounds_error=False)
+    skysr = 4.*np.pi*(180./np.pi)**2
+    return 10.0**template(np.log10(freqs)) / np.sqrt(skysr)
 
 def kpixie_sensitivity(freqs):
     return r2k(freqs, pixie_sensitivity(freqs))

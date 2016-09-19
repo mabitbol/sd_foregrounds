@@ -105,7 +105,7 @@ def ame(nu, Asd=92.0e-6, nup=19.0e9):
     ame_nu *= 1.e9                      # Hz 
     ame_I = ame_temp[3].data.field(1)   # Jy cm^2 /sr/H
     ame_I /= 1.0e26
-    fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value=1.e-30)
+    fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value=-52.5)
     numer_fsd = 10.0**fsd(log10(nu*nup0/nup))
     denom_fsd = 10.0**fsd(log10(nu0*nup0/nup))
     return Asd * (nu0/nu)**2 * numer_fsd / denom_fsd
@@ -135,12 +135,11 @@ def co_jy(nu, amp=1.):
     freqs = x[0] * 1e9
     cmbT = blackbody(freqs, TCMB) * 1e26
     co = x[1] * cmbT
-    fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value=-2)
-    return 10.**fs(log10(nu))
+    fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value=-6.5)
+    return amp * 10.**fs(log10(nu))
 
 def co(nu, amp=1.):
     return radiance_to_krj(nu, co_jy(nu, amp)*1e-26)
-
 
 def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
     PIXIE_freqs = np.arange(fmin, fmax + fstep, fstep)
