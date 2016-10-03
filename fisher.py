@@ -42,13 +42,14 @@ def fisher_signals(signals, freqs, fncs, args, p0, sigmas):
     return F
 
 
-def get_normcov(fncs, freqs, errs):
+def get_normcov(fncs, freqs, errs, write=True):
     args, p0 = fncs_args(fncs)
     F = fisher_signals(signals, freqs, fncs, args, p0, errs)
     cov = np.mat(F).I
     N = cov.shape[0]
-    for k in range(N):
-        print "fisher uncertainty on %s is %f percent" %(args[k], np.sqrt(cov[k,k]) / p0[k] * 100)
+    if write:
+        for k in range(N):
+            print "fisher uncertainty on %s is %f percent" %(args[k], np.sqrt(cov[k,k]) / p0[k] * 100)
     normcov = np.zeros([N,N])
     for i in range(N):
         for k in range(N):

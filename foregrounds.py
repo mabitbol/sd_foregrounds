@@ -78,6 +78,15 @@ def synchrotron(nu, As=10.0, alpha=0.26):
     denom_fs = 10.0**fs(log10(nu0/alpha))
     return As * (nu0/nu)**2 * numer_fs / denom_fs
 
+# this is in Jy/sr
+def jens_synch(nu, As=100., alps=-0.9, w2s=0.2):
+    nu0s = 100.e9
+    return As * (nu/nu0s)**alps * (1. + w2s * np.log(nu/nu0s)**2)
+
+def kjens_synch(nu, As=100., alps=-0.9, w2s=0.2):
+    return radiance_to_krj(nu, jens_synch(nu, As, alps, w2s)*1e-26)
+    
+
 # Free-free 
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp [K]
 def freefree(nu, EM=4.5, Te=7000.0):
@@ -121,13 +130,13 @@ def sz(nu, ysz=1.4e-6):
 # CIB
 # params TCIB, kf
 # units are Jy / sr!!
-def cib_jy(nu, TCIB=18.5, KF=0.64):
+def cib_jy(nu, Ambb=13., TCIB=18.5, KF=0.64):
     X = hplanck*nu/(kboltz*TCIB)
     nu0 = 3.e12
-    return 173.4 * TCIB**3 * (nu/nu0)**KF * X**3 / (np.exp(X) - 1.)
+    return Ambb * TCIB**3 * (nu/nu0)**KF * X**3 / (np.exp(X) - 1.)
 
-def cib(nu, TCIB=18.5, KF=0.64):
-    return radiance_to_krj(nu, cib_jy(nu, TCIB, KF)*1e-26)
+def cib(nu, Ambb=13., TCIB=18.5, KF=0.64):
+    return radiance_to_krj(nu, cib_jy(nu, Ambb, TCIB, KF)*1e-26)
 
 # CO Line emission
 def co_jy(nu, amp=1.):

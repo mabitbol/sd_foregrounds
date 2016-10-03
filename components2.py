@@ -15,7 +15,7 @@ The output is Delta I, the specific intensity measured with respect to the assum
 """
 
 # constants (MKS units, except electron rest mass)
-TCMB = 2.726 #Kelvin
+TCMB = 2.7255 #Kelvin
 hplanck=6.626068e-34 #MKS
 kboltz=1.3806503e-23 #MKS
 clight=299792458.0 #MKS
@@ -89,7 +89,7 @@ def kDeltaI_reltSZ(freqs, y_tot=1.77e-6, y_IGMplusreion=1.87e-7, kTmom1=0.208, k
     return r2k(freqs, DeltaI_reltSZ(freqs, y_tot, y_IGMplusreion, kTmom1, kTmom2, kTmom3, kTmom4))
 
 # 2-parameter version of rel. tSZ -- only allow y_tot and kTmom1 to vary
-def DeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.208): #freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
+def DeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937): #freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
     # parameters held fixed
     y_IGMplusreion=1.87e-7
     kTmom2=0.299
@@ -117,7 +117,7 @@ def DeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.208): #freqs in Hz, y pa
     ddddgfuncrel=24.0*Y3
     return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_IGMplusreion * Y0 + tau_ICM * (kTmom1/m_elec) * gfuncrel + tau_ICM/2.0 * ddgfuncrel * (kTmom1/m_elec)**2.0 * w1 + tau_ICM/6.0 * dddgfuncrel * (kTmom1/m_elec)**3.0 * w2 + tau_ICM/24.0 * ddddgfuncrel * (kTmom1/m_elec)**4.0 * w3)
 
-def kDeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.208):
+def kDeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937):
     return r2k(freqs, DeltaI_reltSZ_2param(freqs, y_tot, kTmom1))
 
 
