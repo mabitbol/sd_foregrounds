@@ -130,12 +130,12 @@ def sz(nu, ysz=1.4e-6):
 # CIB
 # params TCIB, kf
 # units are Jy / sr!!
-def cib_jy(nu, Ambb=13., TCIB=18.5, KF=0.64):
+def cib_jy(nu, Ambb=170., TCIB=18.5, KF=0.64):
     X = hplanck*nu/(kboltz*TCIB)
     nu0 = 3.e12
     return Ambb * TCIB**3 * (nu/nu0)**KF * X**3 / (np.exp(X) - 1.)
 
-def cib(nu, Ambb=13., TCIB=18.5, KF=0.64):
+def cib(nu, Ambb=170., TCIB=18.5, KF=0.64):
     return radiance_to_krj(nu, cib_jy(nu, Ambb, TCIB, KF)*1e-26)
 
 # CO Line emission
