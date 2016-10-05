@@ -54,4 +54,4 @@ def get_normcov(fncs, freqs, errs, write=True):
     for i in range(N):
         for k in range(N):
             normcov[i,k] = cov[i,k] / (p0[i] * p0[k])
-    return normcov, args, p0
+    return cov, normcov, args, p0
