@@ -89,7 +89,7 @@ def jens_synch(nu, As=100., alps=-0.9, w2s=0.2):
 
 # Free-free 
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp [K]
-def freefree(nu, EM=4.5, Te=7000.0):
+def freefree(nu, EM=7.5, Te=7000.0):
     T4 = (Te * 10**-4)**(-3./2.)
     f9 = nu / (10**9)
     gff = np.log(np.exp(5.960 - (np.sqrt(3.)/np.pi) * np.log(f9*T4)) + np.e)
@@ -102,12 +102,14 @@ def freefree2(freqs, EM=9., Te=7000.):
     tff = 3.014e-2 * (Te**-1.5) * (nu**-2) * EM * gff
     return Te * (1. - np.exp(-tff))
 
-def freefree_fix(freqs, EM=9.):
-    Te = 7.e3
-    nu = freqs*1.e-9
-    gff = np.log(4.955e-2 / nu) + 1.5 * np.log(Te)
-    tff = 3.014e-2 * (Te**-1.5) * (nu**-2) * EM * gff
-    return Te * (1. - np.exp(-tff))
+def jens_freefree_jy(nu, EM=155., Te=7000.):
+    Teff = (Te / 1.e3) ** (3./2)
+    nuff = 255.33e9 * Teff
+    gff = 1. + np.log(1. + (nuff/nu)**(np.sqrt(3)/np.pi) )
+    return EM * gff
+
+def jens_freefree(nu, EM=155., Te=7000.):
+    return fg.radiance_to_krj(nu, jens_freefree_jy(nu, EM, Te)*1e-26)
 
 # AME
 # Params Asd, fp : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and peak frequency
