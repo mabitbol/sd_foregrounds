@@ -102,6 +102,13 @@ def freefree2(freqs, EM=9., Te=7000.):
     tff = 3.014e-2 * (Te**-1.5) * (nu**-2) * EM * gff
     return Te * (1. - np.exp(-tff))
 
+def freefree_fix(freqs, EM=9.):
+    Te = 7.e3
+    nu = freqs*1.e-9
+    gff = np.log(4.955e-2 / nu) + 1.5 * np.log(Te)
+    tff = 3.014e-2 * (Te**-1.5) * (nu**-2) * EM * gff
+    return Te * (1. - np.exp(-tff))
+
 # AME
 # Params Asd, fp : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and peak frequency
 def ame(nu, Asd=1.e-4):

@@ -55,3 +55,10 @@ def get_normcov(fncs, freqs, errs, write=True):
         for k in range(N):
             normcov[i,k] = cov[i,k] / (p0[i] * p0[k])
     return cov, normcov, args, p0
+
+
+def get_fisher(fncs, freqs, errs):
+    args, p0 = fncs_args(fncs)
+    F = fisher_signals(signals, freqs, fncs, args, p0, errs)
+    cov = np.mat(F).I
+    return F, cov, args, p0
