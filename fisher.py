@@ -1,4 +1,6 @@
 import numpy as np
+import foregrounds as fg
+import components2 as sd
 import inspect
 
 def deriv_signals(f, freqs, fncs, x, x0):
@@ -41,7 +43,6 @@ def fisher_signals(signals, freqs, fncs, args, p0, sigmas):
             F[i,j] = np.dot(dfdpi, dfdpj)
     return F
 
-
 def get_normcov(fncs, freqs, errs, write=True):
     args, p0 = fncs_args(fncs)
     F = fisher_signals(signals, freqs, fncs, args, p0, errs)
@@ -56,9 +57,32 @@ def get_normcov(fncs, freqs, errs, write=True):
             normcov[i,k] = cov[i,k] / (p0[i] * p0[k])
     return cov, normcov, args, p0
 
-
 def get_fisher(fncs, freqs, errs):
     args, p0 = fncs_args(fncs)
     F = fisher_signals(signals, freqs, fncs, args, p0, errs)
     cov = np.mat(F).I
     return F, cov, args, p0
+
+def get_cmb_sigma(fmin=15.e9, fmax=3.e12, fstep=15.e9, length=15., prior=0.01, mult=1.):
+    freqs = fg.pixie_frequencies(fmin=fmin, fmax=fmax, fstep=fstep)
+    noisek = sd.kpixie_sensitivity(freqs, fsky=0.7) * np.sqrt(15./length) * mult
+    fncs = [sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT, fg.jens_freefree, \
+                fg.jens_synch, fg.cib, fg.ame, fg.co]
+    F, cov, args, p0 = get_fisher(fncs, freqs, noisek)
+    F[5,5] = 1e60  
+    if prior > 0:
+        F[7,7] += 1./(prior * p0[7])**2
+    cov = np.mat(F).I 
+    return F, cov, args, p0
+
+def get_2x2cov(cov, args, p0, names):
+    index = []
+    ncov = []
+    for name in names:
+        index.append(np.where(args==name)[0][0])
+    for i in index:
+        for k in index:
+            ncov.append(cov[i,k])
+    return np.array(ncov).reshape(2,2), args[index], p0[index]
+
+

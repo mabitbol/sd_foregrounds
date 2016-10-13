@@ -109,7 +109,7 @@ def jens_freefree_jy(nu, EM=155., Te=7000.):
     return EM * gff
 
 def jens_freefree(nu, EM=155., Te=7000.):
-    return fg.radiance_to_krj(nu, jens_freefree_jy(nu, EM, Te)*1e-26)
+    return radiance_to_krj(nu, jens_freefree_jy(nu, EM, Te)*1e-26)
 
 # AME
 # Params Asd, fp : amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody] and peak frequency
