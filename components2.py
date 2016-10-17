@@ -160,3 +160,8 @@ def pixie_sensitivity(freqs, fsky=0.7):
 
 def kpixie_sensitivity(freqs, fsky=0.7):
     return r2k(freqs, pixie_sensitivity(freqs, fsky))
+
+def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
+    PIXIE_freqs = np.arange(fmin, fmax + fstep, fstep)
+    return PIXIE_freqs
+
