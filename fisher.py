@@ -67,7 +67,7 @@ def get_cmb_sigma(fmin=15.e9, fmax=3.e12, fstep=15.e9, length=15., prior=0.01, m
     freqs = fg.pixie_frequencies(fmin=fmin, fmax=fmax, fstep=fstep)
     noisek = sd.kpixie_sensitivity(freqs, fsky=0.7) * np.sqrt(15./length) * mult
     fncs = [sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT, \
-                fg.jens_freefree, fg.jens_synch, fg.cib, fg.ame, fg.co]
+                fg.jens_freefree, fg.jens_synch, fg.cib, fg.spinning_dust, fg.co]
     F, cov, args, p0 = get_fisher(fncs, freqs, noisek)
     F[5,5] = 1e60  
     if prior > 0:
