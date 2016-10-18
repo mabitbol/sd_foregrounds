@@ -1,6 +1,6 @@
 import numpy as np
 import foregrounds as fg
-import components2 as sd
+import components as sd
 import inspect
 
 def deriv_signals(f, freqs, fncs, x, x0):

@@ -7,6 +7,10 @@ from scipy import special
 from astropy.io import fits
 from foregrounds import radiance_to_krj as r2k
 
+PIXIE_freq_min = 37.5e9 #central frequency of lowest channel (lower bound is 30 GHz)
+PIXIE_freq_max = 6.0225e12 #central frequency of highest channel (chose this to get 400 total channels)
+PIXIE_freqstep = 15.0e9
+
 """
 A model for each component signal in the spectral distortion sky.
 The function for each component takes as input a vector of frequency values (in Hz), a parameter (or parameters) describing the amplitude,
