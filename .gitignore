@@ -2,6 +2,5 @@
 *.pdf
 *.swp
 *.png
-templates/
-plots/
-old/
+*.fits
+*/

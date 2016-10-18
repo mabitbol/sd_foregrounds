@@ -121,8 +121,8 @@ def ame(nu, Asd=1.e-4):
     nup0 = 33.e9
     ame_temp = fits.open('templates/COM_CompMap_AME-commander_0256_R2.00.fits')
     ame_nu = ame_temp[3].data.field(0)
-    ame_nu *= 1.e9                      # Hz 
-    ame_I = ame_temp[3].data.field(1)   # Jy cm^2 /sr/H
+    ame_nu *= 1.e9                  
+    ame_I = ame_temp[3].data.field(1)   
     ame_I /= 1.0e26
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value=-52.5)
     numer_fsd = 10.0**fsd(log10(nu*nup0/nup))
@@ -138,6 +138,20 @@ def ame2(nu, Asd=92.e-6, nup=19.e9, nu0=22.e9, nup0=30.e9):
     ame_nu *= 1.e9                      # Hz 
     ame_I = ame_temp[3].data.field(1)   # Jy cm^2 /sr/H
     ame_I /= 1.0e26
+    fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value=-52.5)
+    numer_fsd = 10.0**fsd(log10(nu*nup0/nup))
+    denom_fsd = 10.0**fsd(log10(nu0*nup0/nup))
+    return Asd * (nu0/nu)**2 * numer_fsd / denom_fsd
+
+def spinning_dust(nu, Asd=1.e-4):
+    # template nu go from 50 MHz to 500 GHz...
+    # had to add a fill value of 1.e-6 at high frequencies...
+    nup=19.0e9
+    nu0 = 22.8e9
+    nup0 = 33.e9
+    ame_file = np.load('templates/spinningdust_template.npy')
+    ame_nu = ame_file[0]
+    ame_I = ame_file[1]
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value=-52.5)
     numer_fsd = 10.0**fsd(log10(nu*nup0/nup))
     denom_fsd = 10.0**fsd(log10(nu0*nup0/nup))
@@ -164,7 +178,7 @@ def cib(nu, Ambb=170., TCIB=18.5, KF=0.64):
 
 # CO Line emission
 def co_jy(nu, amp=1.):
-    x = np.load('co_arrays.npy')
+    x = np.load('templates/co_arrays.npy')
     freqs = x[0]
     co = x[1]
     fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value=-6.5)
