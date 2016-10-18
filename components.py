@@ -15,7 +15,7 @@ The output is Delta I, the specific intensity measured with respect to the assum
 """
 
 # constants (MKS units, except electron rest mass)
-TCMB = 2.726 #Kelvin
+TCMB = 2.7255 #Kelvin
 hplanck=6.626068e-34 #MKS
 kboltz=1.3806503e-23 #MKS
 clight=299792458.0 #MKS
@@ -62,30 +62,81 @@ def kDeltaI_r(freqs, r_amp=1.e-6):
 # relativistic tSZ distortion ("beyond y") -- see Hill+2015
 #   N.B. although this signal in principle requires an infinite number of parameters to be fully specified, in practice PIXIE will only be sensitive to (at best) one, which is
 #      the mean tau-weighted ICM electron temperature (kT_moments[0], below).  We'll hold all the others fixed, or perhaps just put reasonable priors on them and marginalize over them.
-def DeltaI_reltSZ(freqs, tau_ICM=3.89e-3, kT_moments=[0.208, 0.299, 0.892, 4.02]): #freqs in Hz, tau_ICM dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
+def DeltaI_reltSZ(freqs, y_tot=1.77e-6, y_IGMplusreion=1.87e-7, kTmom1=0.208, kTmom2=0.299, kTmom3=0.892, kTmom4=4.02): #freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
+    # immediately convert from ytot to tau_ICM
+    tau_ICM = (y_tot - y_IGMplusreion)/kTmom1 * m_elec
     # convert to Jens's moment definitions -- this formalism follows Chluba+2013 (MNRAS, 430, 3054)
-    w1 = (kT_moments[1])/(kT_moments[0])**2 - 1.0
-    w2 = (kT_moments[2])/(kT_moments[0])**3 - 3.0*(kT_moments[1])/(kT_moments[0])**2 + 2.0
-    w3 = (kT_moments[3])/(kT_moments[0])**4 - 4.0*(kT_moments[2])/(kT_moments[0])**3 + 6.0*(kT_moments[1])/(kT_moments[0])**2 - 3.0
+    w1 = (kTmom2)/(kTmom1)**2 - 1.0
+    w2 = (kTmom3)/(kTmom1)**3 - 3.0*(kTmom2)/(kTmom1)**2 + 2.0
+    w3 = (kTmom4)/(kTmom1)**4 - 4.0*(kTmom3)/(kTmom1)**3 + 6.0*(kTmom2)/(kTmom1)**2 - 3.0
     #w4 not included for now; stop at w3, which corresponds to <(kT)^4> order
-    #w4 = (kT_moments[4])/(kT_moments[0])**5 - 5.0*(kT_moments[3])/(kT_moments[0])**4 + 10.0*(kT_moments[2])/(kT_moments[0])**3 - 10.0*(kT_moments[1])/(kT_moments[0])**2 + 4.0
+    #w4 = (kTmom5)/(kTmom1)**5 - 5.0*(kTmom4)/(kTmom1)**4 + 10.0*(kTmom3)/(kTmom1)**3 - 10.0*(kTmom2)/(kTmom1)**2 + 4.0
     X = hplanck*freqs/(kboltz*TCMB)
     Xtwid = X*np.cosh(0.5*X)/np.sinh(0.5*X)
     Stwid = X/np.sinh(0.5*X)
     # relativistic expressions from Nozawa+2006
-    Y0=Xtwid-4.0 #N.B. the Y0 term is the non-relativistic tSZ effect (pure y), which we have already accounted for in the DeltaI_y function above
+    Y0=Xtwid-4.0
     Y1=-10.0+23.5*Xtwid-8.4*Xtwid**2+0.7*Xtwid**3+Stwid**2*(-4.2+1.4*Xtwid)
     Y2=-7.5+127.875*Xtwid-173.6*Xtwid**2.0+65.8*Xtwid**3.0-8.8*Xtwid**4.0+0.3666667*Xtwid**5.0+Stwid**2.0*(-86.8+131.6*Xtwid-48.4*Xtwid**2.0+4.7666667*Xtwid**3.0)+Stwid**4.0*(-8.8+3.11666667*Xtwid)
     Y3=7.5+313.125*Xtwid-1419.6*Xtwid**2.0+1425.3*Xtwid**3.0-531.257142857*Xtwid**4.0+86.1357142857*Xtwid**5.0-6.09523809524*Xtwid**6.0+0.15238095238*Xtwid**7.0+Stwid**2.0*(-709.8+2850.6*Xtwid-2921.91428571*Xtwid**2.0+1119.76428571*Xtwid**3.0-173.714285714*Xtwid**4.0+9.14285714286*Xtwid**5.0)+Stwid**4.0*(-531.257142857+732.153571429*Xtwid-274.285714286*Xtwid**2.0+29.2571428571*Xtwid**3.0)+Stwid**6.0*(-25.9047619048+9.44761904762*Xtwid)
-    gfuncrel=Y1*(kT_moments[0]/m_elec)+Y2*(kT_moments[0]/m_elec)**2.0+Y3*(kT_moments[0]/m_elec)**3.0 #third-order (NOTE: no Y0 term because it is already included in DeltaI_y function above)
-    ddgfuncrel=2.0*Y1+6.0*Y2*(kT_moments[0]/m_elec)+24.0*Y3*(kT_moments[0]/m_elec)**2.0
-    dddgfuncrel=6.0*Y2+24.0*Y3*(kT_moments[0]/m_elec)
+    gfuncrel=Y0+Y1*(kTmom1/m_elec)+Y2*(kTmom1/m_elec)**2.0+Y3*(kTmom1/m_elec)**3.0 #third-order
+    ddgfuncrel=2.0*Y1+6.0*Y2*(kTmom1/m_elec)+24.0*Y3*(kTmom1/m_elec)**2.0
+    dddgfuncrel=6.0*Y2+24.0*Y3*(kTmom1/m_elec)
     ddddgfuncrel=24.0*Y3
-    return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * ( tau_ICM * (kT_moments[0]/m_elec) * gfuncrel + tau_ICM/2.0 * ddgfuncrel * (kT_moments[0]/m_elec)**2.0 * w1 + tau_ICM/6.0 * dddgfuncrel * (kT_moments[0]/m_elec)**3.0 * w2 + tau_ICM/24.0 * ddddgfuncrel * (kT_moments[0]/m_elec)**4.0 * w3)
+    return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_IGMplusreion * Y0 + tau_ICM * (kTmom1/m_elec) * gfuncrel + tau_ICM/2.0 * ddgfuncrel * (kTmom1/m_elec)**2.0 * w1 + tau_ICM/6.0 * dddgfuncrel * (kTmom1/m_elec)**3.0 * w2 + tau_ICM/24.0 * ddddgfuncrel * (kTmom1/m_elec)**4.0 * w3)
 
-def kDeltaI_reltSZ(freqs, tau_ICM=3.89e-3, kT_moments=[0.208, 0.299, 0.892, 4.02]):
-    return r2k(freqs, DeltaI_reltSZ(freqs, tau_ICM, kT_moments))
+def kDeltaI_reltSZ(freqs, y_tot=1.77e-6, y_IGMplusreion=1.87e-7, kTmom1=0.208, kTmom2=0.299, kTmom3=0.892, kTmom4=4.02):
+    return r2k(freqs, DeltaI_reltSZ(freqs, y_tot, y_IGMplusreion, kTmom1, kTmom2, kTmom3, kTmom4))
 
+# 2-parameter version of rel. tSZ -- only allow y_tot and kTmom1 to vary
+def DeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937): #freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
+    # parameters held fixed
+    y_IGMplusreion=1.87e-7
+    kTmom2=0.299
+    kTmom3=0.892
+    kTmom4=4.02
+    # immediately convert from ytot to tau_ICM
+    tau_ICM = (y_tot - y_IGMplusreion)/kTmom1 * m_elec
+    # convert to Jens's moment definitions -- this formalism follows Chluba+2013 (MNRAS, 430, 3054)
+    w1 = (kTmom2)/(kTmom1)**2 - 1.0
+    w2 = (kTmom3)/(kTmom1)**3 - 3.0*(kTmom2)/(kTmom1)**2 + 2.0
+    w3 = (kTmom4)/(kTmom1)**4 - 4.0*(kTmom3)/(kTmom1)**3 + 6.0*(kTmom2)/(kTmom1)**2 - 3.0
+    #w4 not included for now; stop at w3, which corresponds to <(kT)^4> order
+    #w4 = (kTmom5)/(kTmom1)**5 - 5.0*(kTmom4)/(kTmom1)**4 + 10.0*(kTmom3)/(kTmom1)**3 - 10.0*(kTmom2)/(kTmom1)**2 + 4.0
+    X = hplanck*freqs/(kboltz*TCMB)
+    Xtwid = X*np.cosh(0.5*X)/np.sinh(0.5*X)
+    Stwid = X/np.sinh(0.5*X)
+    # relativistic expressions from Nozawa+2006
+    Y0=Xtwid-4.0
+    Y1=-10.0+23.5*Xtwid-8.4*Xtwid**2+0.7*Xtwid**3+Stwid**2*(-4.2+1.4*Xtwid)
+    Y2=-7.5+127.875*Xtwid-173.6*Xtwid**2.0+65.8*Xtwid**3.0-8.8*Xtwid**4.0+0.3666667*Xtwid**5.0+Stwid**2.0*(-86.8+131.6*Xtwid-48.4*Xtwid**2.0+4.7666667*Xtwid**3.0)+Stwid**4.0*(-8.8+3.11666667*Xtwid)
+    Y3=7.5+313.125*Xtwid-1419.6*Xtwid**2.0+1425.3*Xtwid**3.0-531.257142857*Xtwid**4.0+86.1357142857*Xtwid**5.0-6.09523809524*Xtwid**6.0+0.15238095238*Xtwid**7.0+Stwid**2.0*(-709.8+2850.6*Xtwid-2921.91428571*Xtwid**2.0+1119.76428571*Xtwid**3.0-173.714285714*Xtwid**4.0+9.14285714286*Xtwid**5.0)+Stwid**4.0*(-531.257142857+732.153571429*Xtwid-274.285714286*Xtwid**2.0+29.2571428571*Xtwid**3.0)+Stwid**6.0*(-25.9047619048+9.44761904762*Xtwid)
+    gfuncrel=Y0+Y1*(kTmom1/m_elec)+Y2*(kTmom1/m_elec)**2.0+Y3*(kTmom1/m_elec)**3.0 #third-order
+    ddgfuncrel=2.0*Y1+6.0*Y2*(kTmom1/m_elec)+24.0*Y3*(kTmom1/m_elec)**2.0
+    dddgfuncrel=6.0*Y2+24.0*Y3*(kTmom1/m_elec)
+    ddddgfuncrel=24.0*Y3
+    return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_IGMplusreion * Y0 + tau_ICM * (kTmom1/m_elec) * gfuncrel + tau_ICM/2.0 * ddgfuncrel * (kTmom1/m_elec)**2.0 * w1 + tau_ICM/6.0 * dddgfuncrel * (kTmom1/m_elec)**3.0 * w2 + tau_ICM/24.0 * ddddgfuncrel * (kTmom1/m_elec)**4.0 * w3)
+
+def kDeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937):
+    return r2k(freqs, DeltaI_reltSZ_2param(freqs, y_tot, kTmom1))
+
+# 2-parameter version of rel. tSZ -- formulated in terms of y_tot and y-weighted effective temperature
+def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505): #freqs in Hz, y parameter dimensionless, kT_yweight in keV, DeltaI_reltSZ in W/m^2/Hz/sr
+    # immediately convert from ytot to tau_ICM
+    tau = y_tot/kT_yweight * m_elec
+    X = hplanck*freqs/(kboltz*TCMB)
+    Xtwid = X*np.cosh(0.5*X)/np.sinh(0.5*X)
+    Stwid = X/np.sinh(0.5*X)
+    # relativistic expressions from Nozawa+2006
+    Y0=Xtwid-4.0
+    Y1=-10.0+23.5*Xtwid-8.4*Xtwid**2+0.7*Xtwid**3+Stwid**2*(-4.2+1.4*Xtwid)
+    Y2=-7.5+127.875*Xtwid-173.6*Xtwid**2.0+65.8*Xtwid**3.0-8.8*Xtwid**4.0+0.3666667*Xtwid**5.0+Stwid**2.0*(-86.8+131.6*Xtwid-48.4*Xtwid**2.0+4.7666667*Xtwid**3.0)+Stwid**4.0*(-8.8+3.11666667*Xtwid)
+    Y3=7.5+313.125*Xtwid-1419.6*Xtwid**2.0+1425.3*Xtwid**3.0-531.257142857*Xtwid**4.0+86.1357142857*Xtwid**5.0-6.09523809524*Xtwid**6.0+0.15238095238*Xtwid**7.0+Stwid**2.0*(-709.8+2850.6*Xtwid-2921.91428571*Xtwid**2.0+1119.76428571*Xtwid**3.0-173.714285714*Xtwid**4.0+9.14285714286*Xtwid**5.0)+Stwid**4.0*(-531.257142857+732.153571429*Xtwid-274.285714286*Xtwid**2.0+29.2571428571*Xtwid**3.0)+Stwid**6.0*(-25.9047619048+9.44761904762*Xtwid)
+    gfuncrel_only=Y1*(kT_yweight/m_elec)+Y2*(kT_yweight/m_elec)**2.0+Y3*(kT_yweight/m_elec)**3.0 #third-order; "only" = no Y0 term (i.e., no non-rel. term)
+    return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only)
+
+def kDeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505):
+    return r2k(freqs, DeltaI_reltSZ_2param_yweight(freqs, y_tot, kT_yweight))
 
 # recombination lines from template
 # file is in GHz and W / m^2 Hz sr
@@ -99,16 +150,18 @@ def recombination(freqs, scale=1.0):
 def krecombination(freqs, scale=1.0):
     return r2k(freqs, recombination(freqs, scale))
 
-def pixie_sensitivity(freqs):
+def pixie_sensitivity(freqs, fsky=0.7):
     sdata = np.loadtxt('Sensitivities.dat')
     fs = sdata[:,0] * 1e9
     sens = sdata[:,1]
-    template = interpolate.interp1d(np.log10(fs), np.log10(sens), fill_value=(-23.3, -21), bounds_error=False)
-    skysr = 4.*np.pi*(180./np.pi)**2
-    return 10.0**template(np.log10(freqs)) / np.sqrt(skysr)
+    template = np.interp(np.log10(freqs), np.log10(fs), np.log10(sens), left=-23.3, right=-21.)
+    skysr = 4.*np.pi*(180./np.pi)**2*fsky
+    return 10.**template / np.sqrt(skysr)
 
-def kpixie_sensitivity(freqs):
-    return r2k(freqs, pixie_sensitivity(freqs))
+def kpixie_sensitivity(freqs, fsky=0.7):
+    return r2k(freqs, pixie_sensitivity(freqs, fsky))
 
-
+def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
+    PIXIE_freqs = np.arange(fmin, fmax + fstep, fstep)
+    return PIXIE_freqs
 
