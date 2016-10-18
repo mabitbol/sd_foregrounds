@@ -155,7 +155,7 @@ def krecombination(freqs, scale=1.0):
     return r2k(freqs, recombination(freqs, scale))
 
 def pixie_sensitivity(freqs, fsky=0.7):
-    sdata = np.loadtxt('Sensitivities.dat')
+    sdata = np.loadtxt('templates/Sensitivities.dat')
     fs = sdata[:,0] * 1e9
     sens = sdata[:,1]
     template = np.interp(np.log10(freqs), np.log10(fs), np.log10(sens), left=-23.3, right=-21.)
