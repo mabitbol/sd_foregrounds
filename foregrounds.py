@@ -48,6 +48,9 @@ def jens_freefree_jy(nu, EM=155., Te=7000.):
 def jens_freefree(nu, EM=155., Te=7000.):
     return radiance_to_krj(nu, jens_freefree_jy(nu, EM, Te)*1e-26)
 
+def jens_freefree1p(nu, EM=155.):
+    return radiance_to_krj(nu, jens_freefree_jy(nu, EM)*1e-26)
+
 def spinning_dust(nu, Asd=1.e-4):
     # template nu go from 50 MHz to 500 GHz...
     # had to add a fill value of 1.e-6 at high frequencies...
@@ -186,13 +189,3 @@ def sz(nu, ysz=1.4e-6):
     gf = (np.exp(X)-1)**2 / (X*X*np.exp(X))
     return ysz*TCMB * ( X*(np.exp(X)+1.)/(np.exp(X)-1.) - 4.) / gf #JCH: fixed some errors here
 
-
-### PIXIE PARAMS ###
-def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
-    PIXIE_freqs = np.arange(fmin, fmax + fstep, fstep)
-    return PIXIE_freqs
-
-def pixie_noise(PIXIE_freqs):
-    PIXIE_Nfreqs = len(PIXIE_freqs)
-    PIXIE_noise = 5.0e-26*np.ones(PIXIE_Nfreqs) #http://arxiv.org/abs/1105.2044 ; taken to be uncorrelated between channels; units W/m^2/Hz/sr 
-    return PIXIE_noise
