@@ -158,7 +158,7 @@ def pixie_sensitivity(freqs, fsky=0.7):
     sdata = np.loadtxt('templates/Sensitivities.dat')
     fs = sdata[:,0] * 1e9
     sens = sdata[:,1]
-    template = np.interp(np.log10(freqs), np.log10(fs), np.log10(sens), left=-23.3, right=-21.)
+    template = np.interp(np.log10(freqs), np.log10(fs), np.log10(sens), left=-23.126679398184603, right=-21.)
     skysr = 4.*np.pi*(180./np.pi)**2*fsky
     return 10.**template / np.sqrt(skysr)
 
