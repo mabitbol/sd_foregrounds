@@ -84,12 +84,12 @@ def get_fisher_bandpass(fncs, freqs, errs, binstep):
     cov = np.mat(F).I
     return F, cov, args, p0
 
-def get_covariance_wbandpass(fmin=15.e9, fmax=3.e12, fstep=15.e9, length=15., prior=0.01, mult=1.):
+def get_covariance_wbandpass(fmin=15.e9, fmax=3.e12, fstep=15.e9, length=15., prior=0.01, mult=1., \
+                             fncs=[sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT, \
+                                   fg.jens_freefree1p, fg.jens_synch, fg.cib, fg.spinning_dust, fg.co]
+                             ):
     freqs, centerfreqs, binstep = band_averaging_freqs(fmin, fmax, fstep)
-    noise = sd.kpixie_sensitivity(freqs, fsky=0.7) * np.sqrt(15./length) * mult
-    noise = noise.reshape((len(noise)/binstep, binstep)).mean(axis=1)
-    fncs = [sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT, \
-                fg.jens_freefree1p, fg.jens_synch, fg.cib, fg.spinning_dust, fg.co]
+    noise = sd.kpixie_sensitivity(centerfreqs, fsky=0.7) * np.sqrt(15./length) * mult
     F, cov, args, p0 = get_fisher_bandpass(fncs, freqs, noise, binstep)
     if prior > 0:
         alps_index = np.where(args=='alps')[0][0]
