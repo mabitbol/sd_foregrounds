@@ -1,7 +1,9 @@
-import numpy as np
-import foregrounds as fg
-import components as sd
 import inspect
+
+import numpy as np
+
+import components as sd
+import foregrounds as fg
 from foregrounds import radiance_to_krj as r2k
 
 

@@ -1,11 +1,7 @@
 import numpy as np
-from numpy import log10
-import math, os
-import glob
-from scipy import interpolate
-from scipy import integrate
-from scipy import special
 from astropy.io import fits
+from numpy import log10
+from scipy import interpolate
 
 # constants (MKS units, except electron rest mass)
 TCMB = 2.726  # Kelvin
@@ -13,11 +9,6 @@ hplanck = 6.626068e-34  # MKS
 kboltz = 1.3806503e-23  # MKS
 clight = 299792458.0  # MKS
 m_elec = 510.999  # keV!
-
-PIXIE_freq_min = 37.5e9  # central frequency of lowest channel (lower bound is 30 GHz)
-PIXIE_freq_max = 6.0225e12  # central frequency of highest channel (chose this to get 400 total channels)
-PIXIE_freqstep = 15.0e9
-
 
 # Foreground units are in Kelvin
 # 1 Jy = 1e-26 W / (Hz sr m^2)

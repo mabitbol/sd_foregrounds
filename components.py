@@ -1,10 +1,6 @@
 import numpy as np
-import math, os
-import glob
 from scipy import interpolate
-from scipy import integrate
-from scipy import special
-from astropy.io import fits
+
 from foregrounds import radiance_to_krj as r2k
 
 PIXIE_freq_min = 37.5e9 #central frequency of lowest channel (lower bound is 30 GHz)
