@@ -26,16 +26,18 @@ clight=299792458.0 #MKS
 m_elec = 510.999 #keV!
 
 # Delta_T distortion (i.e., this accounts for the difference in the true CMB temperature from our assumed value)
-#   N.B. I am only working to lowest order here, we may want to go beyond this (see Eq. 2 of http://arxiv.org/pdf/1306.5751v2.pdf and discussion thereafter; also Sec. 4.1 of that paper)
-def DeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4): #freqs in Hz, DeltaT_amp dimensionless (DeltaT = (T_CMB_true - T_CMB_assumed)/T_CMB_assumed), DeltaI_DeltaT in W/m^2/Hz/sr
+#  N.B. I am only working to lowest order here, we may want to go beyond this (see Eq. 2 of http://arxiv.org/pdf/1306.5751v2.pdf and discussion thereafter; also Sec. 4.1 of that paper)
+# freqs in Hz, DeltaT_amp dimensionless (DeltaT = (T_CMB_true - T_CMB_assumed)/T_CMB_assumed), DeltaI_DeltaT in W/m^2/Hz/sr
+def DeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4):
     X = hplanck*freqs/(kboltz*TCMB)
     return DeltaT_amp * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0
 
-def kDeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4): 
+def kDeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4):
     return r2k(freqs, DeltaI_DeltaT(freqs, DeltaT_amp))
 
 # y-type distortion (i.e., non-relativistic tSZ) -- see e.g. Eq. 6 of Hill+2015
-def DeltaI_y(freqs, y_amp=1.77e-6): #freqs in Hz, y_amp dimensionless, DeltaI_y in W/m^2/Hz/sr
+# freqs in Hz, y_amp dimensionless, DeltaI_y in W/m^2/Hz/sr
+def DeltaI_y(freqs, y_amp=1.77e-6):
     X = hplanck*freqs/(kboltz*TCMB)
     return y_amp * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0
 
@@ -43,7 +45,8 @@ def kDeltaI_y(freqs, y_amp=1.77e-6):
     return r2k(freqs, DeltaI_y(freqs, y_amp))
 
 # mu-type distortion -- see e.g. Section 2.3 of 1306.5751
-def DeltaI_mu(freqs, mu_amp=2.e-8): #freqs in Hz, mu_amp dimensionless, DeltaI_mu in W/m^2/Hz/sr
+#freqs in Hz, mu_amp dimensionless, DeltaI_mu in W/m^2/Hz/sr
+def DeltaI_mu(freqs, mu_amp=2.e-8):
     X = hplanck*freqs/(kboltz*TCMB)
     return mu_amp * (X / 2.1923 - 1.0)/X * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0
 
@@ -51,7 +54,8 @@ def kDeltaI_mu(freqs, mu_amp=2.e-8):
     return r2k(freqs, DeltaI_mu(freqs, mu_amp))
 
 # r-type distortion (first non-mu/non-y eigenmode -- this is only approximately correct for us to use here, but let's stick with it for now)
-def DeltaI_r(freqs, r_amp=1.e-6): #freqs in Hz, r_amp dimensionless, DeltaI_r in W/m^2/Hz/sr
+#freqs in Hz, r_amp dimensionless, DeltaI_r in W/m^2/Hz/sr
+def DeltaI_r(freqs, r_amp=1.e-6):
     X = hplanck*freqs/(kboltz*TCMB)
     # first r-distortion eigenmode from Jens (Fig. 4 of 1306.5751)
     rfile = np.loadtxt('templates/PCA_mode_1.dat')
@@ -64,8 +68,8 @@ def kDeltaI_r(freqs, r_amp=1.e-6):
     return r2k(freqs, DeltaI_r(freqs, r_amp))
 
 # relativistic tSZ distortion ("beyond y") -- see Hill+2015
-#   N.B. although this signal in principle requires an infinite number of parameters to be fully specified, in practice PIXIE will only be sensitive to (at best) one, which is
-#      the mean tau-weighted ICM electron temperature (kT_moments[0], below).  We'll hold all the others fixed, or perhaps just put reasonable priors on them and marginalize over them.
+#  N.B. although this signal in principle requires an infinite number of parameters to be fully specified, in practice PIXIE will only be sensitive to (at best) one, which is
+#  the mean tau-weighted ICM electron temperature (kT_moments[0], below).  We'll hold all the others fixed, or perhaps just put reasonable priors on them and marginalize over them.
 def DeltaI_reltSZ(freqs, y_tot=1.77e-6, y_IGMplusreion=1.87e-7, kTmom1=0.208, kTmom2=0.299, kTmom3=0.892, kTmom4=4.02): #freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
     # immediately convert from ytot to tau_ICM
     tau_ICM = (y_tot - y_IGMplusreion)/kTmom1 * m_elec
@@ -93,7 +97,8 @@ def kDeltaI_reltSZ(freqs, y_tot=1.77e-6, y_IGMplusreion=1.87e-7, kTmom1=0.208, k
     return r2k(freqs, DeltaI_reltSZ(freqs, y_tot, y_IGMplusreion, kTmom1, kTmom2, kTmom3, kTmom4))
 
 # 2-parameter version of rel. tSZ -- only allow y_tot and kTmom1 to vary
-def DeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937): #freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
+#freqs in Hz, y parameters dimensionless, kT_moments in keV^n, DeltaI_reltSZ in W/m^2/Hz/sr; code uses up to kT_moments[3] (Eq. 8 of Hill+2015 with n=4)
+def DeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937):
     # parameters held fixed
     y_IGMplusreion=1.87e-7
     kTmom2=0.299
@@ -125,7 +130,8 @@ def kDeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937):
     return r2k(freqs, DeltaI_reltSZ_2param(freqs, y_tot, kTmom1))
 
 # 2-parameter version of rel. tSZ -- formulated in terms of y_tot and y-weighted effective temperature
-def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505): #freqs in Hz, y parameter dimensionless, kT_yweight in keV, DeltaI_reltSZ in W/m^2/Hz/sr
+# freqs in Hz, y parameter dimensionless, kT_yweight in keV, DeltaI_reltSZ in W/m^2/Hz/sr
+def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505):
     # immediately convert from ytot to tau_ICM
     tau = y_tot/kT_yweight * m_elec
     X = hplanck*freqs/(kboltz*TCMB)
@@ -136,7 +142,8 @@ def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505): #fre
     Y1=-10.0+23.5*Xtwid-8.4*Xtwid**2+0.7*Xtwid**3+Stwid**2*(-4.2+1.4*Xtwid)
     Y2=-7.5+127.875*Xtwid-173.6*Xtwid**2.0+65.8*Xtwid**3.0-8.8*Xtwid**4.0+0.3666667*Xtwid**5.0+Stwid**2.0*(-86.8+131.6*Xtwid-48.4*Xtwid**2.0+4.7666667*Xtwid**3.0)+Stwid**4.0*(-8.8+3.11666667*Xtwid)
     Y3=7.5+313.125*Xtwid-1419.6*Xtwid**2.0+1425.3*Xtwid**3.0-531.257142857*Xtwid**4.0+86.1357142857*Xtwid**5.0-6.09523809524*Xtwid**6.0+0.15238095238*Xtwid**7.0+Stwid**2.0*(-709.8+2850.6*Xtwid-2921.91428571*Xtwid**2.0+1119.76428571*Xtwid**3.0-173.714285714*Xtwid**4.0+9.14285714286*Xtwid**5.0)+Stwid**4.0*(-531.257142857+732.153571429*Xtwid-274.285714286*Xtwid**2.0+29.2571428571*Xtwid**3.0)+Stwid**6.0*(-25.9047619048+9.44761904762*Xtwid)
-    gfuncrel_only=Y1*(kT_yweight/m_elec)+Y2*(kT_yweight/m_elec)**2.0+Y3*(kT_yweight/m_elec)**3.0 #third-order; "only" = no Y0 term (i.e., no non-rel. term)
+    gfuncrel_only=Y1*(kT_yweight/m_elec)+Y2*(kT_yweight/m_elec)**2.0+Y3*(kT_yweight/m_elec)**3.0
+    #third-order; "only" = no Y0 term (i.e., no non-rel. term)
     return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only)
 
 def kDeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505):
@@ -153,19 +160,4 @@ def recombination(freqs, scale=1.0):
 
 def krecombination(freqs, scale=1.0):
     return r2k(freqs, recombination(freqs, scale))
-
-def pixie_sensitivity(freqs, fsky=0.7):
-    sdata = np.loadtxt('templates/Sensitivities.dat')
-    fs = sdata[:,0] * 1e9
-    sens = sdata[:,1]
-    template = np.interp(np.log10(freqs), np.log10(fs), np.log10(sens), left=-23.126679398184603, right=-21.)
-    skysr = 4.*np.pi*(180./np.pi)**2*fsky
-    return 10.**template / np.sqrt(skysr)
-
-def kpixie_sensitivity(freqs, fsky=0.7):
-    return r2k(freqs, pixie_sensitivity(freqs, fsky))
-
-def pixie_frequencies(fmin=PIXIE_freq_min, fmax=PIXIE_freq_max, fstep=PIXIE_freqstep): # PIXIE frequency channels (all in Hz) -- see http://arxiv.org/abs/1105.2044
-    PIXIE_freqs = np.arange(fmin, fmax + fstep, fstep)
-    return PIXIE_freqs
 
