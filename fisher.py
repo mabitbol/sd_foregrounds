@@ -19,12 +19,12 @@ class FisherEstimation:
         self.prior = prior
 
         self.setup()
+        self.set_signals()
         return
 
     def setup(self):
-        self.set_signals()
         self.set_frequencies()
-        self.noise = self.kpixie_sensitivity()
+        self.noise = self.pixie_sensitivity()
         return
 
     def run_fisher_calculation(self):
@@ -41,8 +41,10 @@ class FisherEstimation:
 
     def set_signals(self, fncs=None):
         if fncs is None:
-            fncs = [sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT,
-                    fg.jens_freefree1p, fg.jens_synch, fg.cib, fg.spinning_dust, fg.co]
+            #fncs = [sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT,
+            #        fg.jens_freefree1p, fg.jens_synch, fg.cib, fg.spinning_dust, fg.co]
+            fncs = [sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight, sd.DeltaI_DeltaT,
+                    fg.jens_freefree_jy, fg.jens_synch_jy, fg.cib_jy, fg.spinning_dust, fg.co_jy]
         self.signals = fncs
         self.args, self.p0 = self.get_function_args()
         return

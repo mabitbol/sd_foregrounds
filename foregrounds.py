@@ -28,18 +28,19 @@ def radiance_to_krj(nu, y):
 # this is in Jy/sr
 def jens_synch_jy(nu, As=100., alps=-0.9, w2s=0.2):
     nu0s = 100.e9
-    return As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2)
+    return As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2) * 1e-26
 
 
 def jens_synch(nu, As=100., alps=-0.9, w2s=0.2):
     return radiance_to_krj(nu, jens_synch_jy(nu, As, alps, w2s) * 1e-26)
 
 
-def jens_freefree_jy(nu, EM=155., Te=7000.):
+def jens_freefree_jy(nu, EM=155.):
+    Te = 7000.
     Teff = (Te / 1.e3) ** (3. / 2)
     nuff = 255.33e9 * Teff
     gff = 1. + np.log(1. + (nuff / nu) ** (np.sqrt(3) / np.pi))
-    return EM * gff
+    return EM * gff * 1e-26
 
 
 def jens_freefree(nu, EM=155., Te=7000.):
@@ -62,13 +63,13 @@ def spinning_dust(nu, Asd=1.e-4):
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
     numer_fsd = 10.0 ** fsd(log10(nu * nup0 / nup))
     denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
-    return Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd
+    return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
 
 
 def cib_jy(nu, Ambb=170., TCIB=18.5, KF=0.64):
     X = hplanck * nu / (kboltz * TCIB)
     nu0 = 3.e12
-    return Ambb * TCIB ** 3 * (nu / nu0) ** KF * X ** 3 / (np.exp(X) - 1.)
+    return Ambb * TCIB ** 3 * (nu / nu0) ** KF * X ** 3 / (np.exp(X) - 1.) * 1e-26
 
 
 def cib(nu, Ambb=170., TCIB=18.5, KF=0.64):
@@ -80,7 +81,7 @@ def co_jy(nu, amp=1.):
     freqs = x[0]
     co = x[1]
     fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value="extrapolate")
-    return amp * 10. ** fs(log10(nu))
+    return amp * 10. ** fs(log10(nu)) * 1e-26
 
 
 def co(nu, amp=1.):
