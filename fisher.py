@@ -30,14 +30,27 @@ class FisherEstimation:
     def run_fisher_calculation(self):
         N = len(self.args)
         F = self.calculate_fisher_matrix()
-        if self.prior > 0:
+        if 'alps' in self.args and self.prior > 0:
             alps_index = np.where(self.args == 'alps')[0][0]
             F[alps_index, alps_index] += 1. / (self.prior * self.p0[alps_index]) ** 2
         normF = np.zeros([N, N])
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
         cov = (np.mat(normF) * np.mat(F)).I * np.mat(normF)
-        return F, cov
+        self.F = F
+        self.cov = cov
+        self.get_errors()
+        return
+
+    def get_errors(self):
+        self.errors = {}
+        for k, arg in enumerate(self.args):
+            self.errors[arg] = np.sqrt(self.cov[k,k])
+        return
+
+    def print_errors(self):
+        for arg in self.args:
+            print arg, self.errors[arg]
 
     def set_signals(self, fncs=None):
         if fncs is None:
