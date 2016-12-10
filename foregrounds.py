@@ -25,17 +25,18 @@ def radiance_to_krj(nu, y):
 
 
 ### Reorganizing ###
-# this is in Jy/sr
-def jens_synch_jy(nu, As=100., alps=-0.9, w2s=0.2):
+# These are all actually in W/Hz/sr/m^2!! Jy/sr and then mult by 1e-26
+# because the signals in components are in W/Hz/sr/m^2
+def jens_synch_rad(nu, As=100., alps=-0.9, w2s=0.2):
     nu0s = 100.e9
     return As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2) * 1e-26
 
 
 def jens_synch(nu, As=100., alps=-0.9, w2s=0.2):
-    return radiance_to_krj(nu, jens_synch_jy(nu, As, alps, w2s) * 1e-26)
+    return radiance_to_krj(nu, jens_synch_rad(nu, As, alps, w2s))
 
 
-def jens_freefree_jy(nu, EM=155.):
+def jens_freefree_rad(nu, EM=155.):
     Te = 7000.
     Teff = (Te / 1.e3) ** (3. / 2)
     nuff = 255.33e9 * Teff
@@ -44,19 +45,17 @@ def jens_freefree_jy(nu, EM=155.):
 
 
 def jens_freefree(nu, EM=155., Te=7000.):
-    return radiance_to_krj(nu, jens_freefree_jy(nu, EM, Te) * 1e-26)
+    return radiance_to_krj(nu, jens_freefree_rad(nu, EM, Te))
 
 
 def jens_freefree1p(nu, EM=155.):
-    return radiance_to_krj(nu, jens_freefree_jy(nu, EM) * 1e-26)
+    return radiance_to_krj(nu, jens_freefree_rad(nu, EM))
 
 
 def spinning_dust(nu, Asd=1.e-4):
-    # template nu go from 50 MHz to 500 GHz...
-    # had to add a fill value of 1.e-6 at high frequencies...
     nup = 19.0e9
     nu0 = 22.8e9
-    nup0 = 33.e9
+    nup0 = 30.e9
     ame_file = np.load('templates/spinningdust_template.npy')
     ame_nu = ame_file[0]
     ame_I = ame_file[1]
@@ -66,17 +65,26 @@ def spinning_dust(nu, Asd=1.e-4):
     return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
 
 
-def cib_jy(nu, Ambb=170., TCIB=18.5, KF=0.64):
+def thermal_dust_rad(nu, Ad=163.e-6, Bd=1.53, Td=21.):
+    return krj_to_radiance(nu, thermal_dust(nu, Ad, Bd, Td)) * 1e-26
+
+def thermal_dust(nu, Ad=163.e-6, Bd=1.53, Td=21.):
+    nu0 = 545.0e9  # planck frequency
+    gam = hplanck / (kboltz * Td)
+    return Ad * (nu / nu0) ** (Bd + 1.0) * (np.exp(gam * nu0) - 1.0) / (np.exp(gam * nu) - 1.0)
+
+
+def cib_rad(nu, Ambb=170., TCIB=18.5, KF=0.64):
     X = hplanck * nu / (kboltz * TCIB)
     nu0 = 3.e12
     return Ambb * TCIB ** 3 * (nu / nu0) ** KF * X ** 3 / (np.exp(X) - 1.) * 1e-26
 
 
 def cib(nu, Ambb=170., TCIB=18.5, KF=0.64):
-    return radiance_to_krj(nu, cib_jy(nu, Ambb, TCIB, KF) * 1e-26)
+    return radiance_to_krj(nu, cib_rad(nu, Ambb, TCIB, KF))
 
 
-def co_jy(nu, amp=1.):
+def co_rad(nu, amp=1.):
     x = np.load('templates/co_arrays.npy')
     freqs = x[0]
     co = x[1]
@@ -85,7 +93,7 @@ def co_jy(nu, amp=1.):
 
 
 def co(nu, amp=1.):
-    return radiance_to_krj(nu, co_jy(nu, amp) * 1e-26)
+    return radiance_to_krj(nu, co_rad(nu, amp))
 
 
 ### Older Functions ###
@@ -115,10 +123,6 @@ def cmb(freqs, T=TCMB, A=3.0e-6):
 # Thermal Dust
 # Params Ad, Bd, Td which are amplitude [K_RJ, brightness temp fluctuation w.r.t. CMB blackbody], spectral index, and temperature [K]
 # Params were 163e-6, 1.51, 21 but to match jens and some papers we use:
-def thermal_dust(nu, Ad=10.e-6, Bd=1.59, Td=19.6):
-    nu0 = 545.0e9  # planck frequency
-    gam = hplanck / (kboltz * Td)
-    return Ad * (nu / nu0) ** (Bd + 1.0) * (np.exp(gam * nu0) - 1.0) / (np.exp(gam * nu) - 1.0)
 
 
 # Synchrotron (based on Haslam and GALPROP)
@@ -178,9 +182,6 @@ def ame(nu, Asd=1.e-4):
 
 
 def ame2(nu, Asd=92.e-6, nup=19.e9, nu0=22.e9, nup0=30.e9):
-    nup = 19.0e9
-    nu0 = 22.8e9
-    nup0 = 30.e9
     ame_temp = fits.open('templates/COM_CompMap_AME-commander_0256_R2.00.fits')
     ame_nu = ame_temp[3].data.field(0)
     ame_nu *= 1.e9  # Hz
