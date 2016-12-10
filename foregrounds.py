@@ -66,7 +66,7 @@ def spinning_dust(nu, Asd=1.e-4):
 
 
 def thermal_dust_rad(nu, Ad=163.e-6, Bd=1.53, Td=21.):
-    return krj_to_radiance(nu, thermal_dust(nu, Ad, Bd, Td)) * 1e-26
+    return krj_to_radiance(nu, thermal_dust(nu, Ad, Bd, Td))
 
 def thermal_dust(nu, Ad=163.e-6, Bd=1.53, Td=21.):
     nu0 = 545.0e9  # planck frequency
