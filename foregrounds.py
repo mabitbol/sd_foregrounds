@@ -27,16 +27,16 @@ def radiance_to_krj(nu, y):
 ### Reorganizing ###
 # These are all actually in W/Hz/sr/m^2!! Jy/sr and then mult by 1e-26
 # because the signals in components are in W/Hz/sr/m^2
-def jens_synch_rad(nu, As=100., alps=-0.9, w2s=0.2):
+def jens_synch_rad(nu, As=288., alps=-0.82, w2s=0.2):
     nu0s = 100.e9
     return As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2) * 1e-26
 
 
-def jens_synch(nu, As=100., alps=-0.9, w2s=0.2):
+def jens_synch(nu, As=288., alps=-0.82, w2s=0.2):
     return radiance_to_krj(nu, jens_synch_rad(nu, As, alps, w2s))
 
 
-def jens_freefree_rad(nu, EM=155.):
+def jens_freefree_rad(nu, EM=300.):
     Te = 7000.
     Teff = (Te / 1.e3) ** (3. / 2)
     nuff = 255.33e9 * Teff
@@ -44,15 +44,15 @@ def jens_freefree_rad(nu, EM=155.):
     return EM * gff * 1e-26
 
 
-def jens_freefree(nu, EM=155., Te=7000.):
+def jens_freefree(nu, EM=300., Te=7000.):
     return radiance_to_krj(nu, jens_freefree_rad(nu, EM, Te))
 
 
-def jens_freefree1p(nu, EM=155.):
+def jens_freefree1p(nu, EM=300.):
     return radiance_to_krj(nu, jens_freefree_rad(nu, EM))
 
 
-def spinning_dust(nu, Asd=1.e-4):
+def spinning_dust(nu, Asd=92.e-6):
     nup = 19.0e9
     nu0 = 22.8e9
     nup0 = 30.e9
@@ -74,14 +74,13 @@ def thermal_dust(nu, Ad=163.e-6, Bd=1.53, Td=21.):
     return Ad * (nu / nu0) ** (Bd + 1.0) * (np.exp(gam * nu0) - 1.0) / (np.exp(gam * nu) - 1.0)
 
 
-def cib_rad(nu, Ambb=170., TCIB=18.5, KF=0.64):
-    X = hplanck * nu / (kboltz * TCIB)
-    nu0 = 3.e12
-    return Ambb * TCIB ** 3 * (nu / nu0) ** KF * X ** 3 / (np.exp(X) - 1.) * 1e-26
+def cib_rad(nu, Acib=45.e-6, Bcib=0.86, Tcib=18.8):
+    return krj_to_radiance(nu, cib(nu, Acib, Bcib, Tcib))
 
-
-def cib(nu, Ambb=170., TCIB=18.5, KF=0.64):
-    return radiance_to_krj(nu, cib_rad(nu, Ambb, TCIB, KF))
+def cib(nu, Acib=45.e-6, Bcib=0.86, Tcib=18.8):
+    nu0 = 545.0e9
+    gam = hplanck / (kboltz * Tcib)
+    return Acib * (nu / nu0) ** (Bcib + 1.0) * (np.exp(gam * nu0) - 1.0) / (np.exp(gam * nu) - 1.0)
 
 
 def co_rad(nu, amp=1.):
@@ -147,7 +146,7 @@ def synchrotron(nu, As=10.0, alpha=0.26):
 
 # Free-free
 # Params EM, Te : emission measure (=integrated square electron density along LOS) and electron temp [K]
-def freefree(nu, EM=7.5, Te=7000.0):
+def freefree(nu, EM=15, Te=7000.0):
     T4 = (Te * 10 ** -4) ** (-3. / 2.)
     f9 = nu / (10 ** 9)
     gff = np.log(np.exp(5.960 - (np.sqrt(3.) / np.pi) * np.log(f9 * T4)) + np.e)
@@ -200,3 +199,13 @@ def sz(nu, ysz=1.4e-6):
     X = hplanck * nu / (kboltz * TCMB)
     gf = (np.exp(X) - 1) ** 2 / (X * X * np.exp(X))
     return ysz * TCMB * (X * (np.exp(X) + 1.) / (np.exp(X) - 1.) - 4.) / gf  # JCH: fixed some errors here
+
+
+def cib_rad_old(nu, Ambb=170., TCIB=18.5, KF=0.75):
+    X = hplanck * nu / (kboltz * TCIB)
+    nu0 = 3.e12
+    return Ambb * TCIB ** 3 * (nu / nu0) ** KF * X ** 3 / (np.exp(X) - 1.) * 1e-26
+
+
+def cib_old(nu, Ambb=170., TCIB=18.5, KF=0.75):
+    return radiance_to_krj(nu, cib_rad(nu, Ambb, TCIB, KF))

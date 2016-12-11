@@ -8,7 +8,7 @@ from foregrounds import radiance_to_krj as r2k
 
 
 class FisherEstimation:
-    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True, fsky=0.7, mult=1., prior=0.1):
+    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True, fsky=0.93, mult=1., prior=0.1):
         self.fmin = fmin
         self.fmax = fmax
         self.fstep = fstep
@@ -54,10 +54,9 @@ class FisherEstimation:
 
     def set_signals(self, fncs=None):
         if fncs is None:
-            #fncs = [sd.kDeltaI_mu, sd.kDeltaI_reltSZ_2param_yweight, sd.kDeltaI_DeltaT,
-            #        fg.jens_freefree1p, fg.jens_synch, fg.cib, fg.spinning_dust, fg.co]
             fncs = [sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight, sd.DeltaI_DeltaT,
-                    fg.jens_freefree_rad, fg.jens_synch_rad, fg.cib_rad, fg.spinning_dust, fg.co_rad]
+                    fg.thermal_dust_rad, fg. cib_rad, 
+                    fg.jens_freefree_rad, fg.jens_synch_rad, fg.spinning_dust, fg.co_rad]
         self.signals = fncs
         self.args, self.p0 = self.get_function_args()
         return
@@ -134,3 +133,4 @@ class FisherEstimation:
             return model.reshape((N / self.binstep, self.binstep)).mean(axis=1)
         else:
             return model
+
