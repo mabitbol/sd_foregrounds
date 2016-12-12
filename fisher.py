@@ -8,7 +8,7 @@ from foregrounds import radiance_to_krj as r2k
 
 
 class FisherEstimation:
-    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True, fsky=0.93, mult=1., prior=0.1):
+    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True, fsky=0.7, mult=1., prior=0.1):
         self.fmin = fmin
         self.fmax = fmax
         self.fstep = fstep
