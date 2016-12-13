@@ -65,7 +65,7 @@ def spinning_dust(nu, Asd=92.e-6):
     return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
 
 
-def thermal_dust_rad(nu, Ad=163.e-6, Bd=1.83, Td=21.):
+def thermal_dust_rad(nu, Ad=163.e-6, Bd=1.53, Td=21.):
     return krj_to_radiance(nu, thermal_dust(nu, Ad, Bd, Td))
 
 def thermal_dust(nu, Ad=163.e-6, Bd=1.53, Td=21.):
