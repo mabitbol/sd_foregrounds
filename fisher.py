@@ -8,7 +8,8 @@ from foregrounds import radiance_to_krj as r2k
 
 
 class FisherEstimation:
-    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True, fsky=0.7, mult=1., prior=0.1):
+    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True,\
+                    fsky=0.7, mult=1., priors={'alps':0.1}):
         self.fmin = fmin
         self.fmax = fmax
         self.fstep = fstep
@@ -16,7 +17,7 @@ class FisherEstimation:
         self.bandpass = bandpass
         self.fsky = fsky
         self.mult = mult
-        self.prior = prior
+        self.priors = priors
 
         self.setup()
         self.set_signals()
@@ -30,9 +31,10 @@ class FisherEstimation:
     def run_fisher_calculation(self):
         N = len(self.args)
         F = self.calculate_fisher_matrix()
-        if 'alps' in self.args and self.prior > 0:
-            alps_index = np.where(self.args == 'alps')[0][0]
-            F[alps_index, alps_index] += 1. / (self.prior * self.p0[alps_index]) ** 2
+        for k in self.priors.keys():
+            if k in self.args and self.priors[k] > 0:
+                kindex = np.where(self.args == k)[0][0]
+                F[kindex, kindex] += 1. / (self.priors[k] * self.p0[kindex])**2
         normF = np.zeros([N, N])
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
@@ -49,8 +51,8 @@ class FisherEstimation:
         return
 
     def print_errors(self):
-        for arg in self.args:
-            print arg, self.errors[arg]
+        for k, arg in enumerate(self.args):
+            print arg, self.errors[arg], self.p0[k]/self.errors[arg]
 
     def set_signals(self, fncs=None):
         if fncs is None:
