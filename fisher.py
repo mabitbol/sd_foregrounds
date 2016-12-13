@@ -34,7 +34,7 @@ class FisherEstimation:
         for k in self.priors.keys():
             if k in self.args and self.priors[k] > 0:
                 kindex = np.where(self.args == k)[0][0]
-                F[kindex, kindex] += 1. / (self.priors[k] * self.p0[kindex])**2
+                F[kindex, kindex] += 1. / (self.priors[k] * self.argvals[k])**2
         normF = np.zeros([N, N])
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
@@ -51,16 +51,16 @@ class FisherEstimation:
         return
 
     def print_errors(self):
-        for k, arg in enumerate(self.args):
-            print arg, self.errors[arg], self.p0[k]/self.errors[arg]
+        for arg in self.args:
+            print arg, self.errors[arg], self.argvals[arg]/self.errors[arg]
 
     def set_signals(self, fncs=None):
         if fncs is None:
             fncs = [sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight, sd.DeltaI_DeltaT,
-                    fg.thermal_dust_rad, fg. cib_rad, 
-                    fg.jens_freefree_rad, fg.jens_synch_rad, fg.spinning_dust, fg.co_rad]
+                    fg.thermal_dust_rad, fg. cib_rad, fg.jens_freefree_rad, 
+                    fg.jens_synch_rad, fg.spinning_dust, fg.co_rad]
         self.signals = fncs
-        self.args, self.p0 = self.get_function_args()
+        self.args, self.p0, self.argvals = self.get_function_args()
         return
 
     def set_frequencies(self):
@@ -98,7 +98,7 @@ class FisherEstimation:
             p0 = argsp[-1]
             targs = np.concatenate([targs, args])
             tp0 = np.concatenate([tp0, p0])
-        return targs, tp0
+        return targs, tp0, dict(zip(targs, tp0))
 
     def calculate_fisher_matrix(self):
         N = len(self.p0)
