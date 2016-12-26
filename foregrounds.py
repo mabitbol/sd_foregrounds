@@ -31,6 +31,9 @@ def jens_synch_rad(nu, As=288., alps=-0.82, w2s=0.2):
     nu0s = 100.e9
     return As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2) * 1e-26
 
+def jens_synch_rad1(nu, As=288., alps=-0.82):
+    nu0s = 100.e9
+    return As * (nu / nu0s) ** alps * 1e-26
 
 def jens_synch(nu, As=288., alps=-0.82, w2s=0.2):
     return radiance_to_krj(nu, jens_synch_rad(nu, As, alps, w2s))
@@ -64,6 +67,16 @@ def spinning_dust(nu, Asd=92.e-6):
     denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
     return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
 
+def spinning_dust2(nu, Asd=92.e-6, nup=19.e9):
+    nu0 = 22.8e9
+    nup0 = 30.e9
+    ame_file = np.load('templates/spinningdust_template.npy')
+    ame_nu = ame_file[0]
+    ame_I = ame_file[1]
+    fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
+    numer_fsd = 10.0 ** fsd(log10(nu * nup0 / nup))
+    denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
+    return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
 
 def thermal_dust_rad(nu, Ad=163.e-6, Bd=1.53, Td=21.):
     return krj_to_radiance(nu, thermal_dust(nu, Ad, Bd, Td))
