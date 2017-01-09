@@ -46,14 +46,24 @@ def jens_freefree_rad(nu, EM=300.):
     gff = 1. + np.log(1. + (nuff / nu) ** (np.sqrt(3) / np.pi))
     return EM * gff * 1e-26
 
-
 def jens_freefree(nu, EM=300., Te=7000.):
     return radiance_to_krj(nu, jens_freefree_rad(nu, EM, Te))
-
 
 def jens_freefree1p(nu, EM=300.):
     return radiance_to_krj(nu, jens_freefree_rad(nu, EM))
 
+
+def kspinning_dust(nu, Asd=92.e-6):
+    nup = 19.0e9
+    nu0 = 22.8e9
+    nup0 = 30.e9
+    ame_file = np.load('templates/spinningdust_template.npy')
+    ame_nu = ame_file[0]
+    ame_I = ame_file[1]
+    fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
+    numer_fsd = 10.0 ** fsd(log10(nu * nup0 / nup))
+    denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
+    return Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd
 
 def spinning_dust(nu, Asd=92.e-6):
     nup = 19.0e9
@@ -77,6 +87,7 @@ def spinning_dust2(nu, Asd=92.e-6, nup=19.e9):
     numer_fsd = 10.0 ** fsd(log10(nu * nup0 / nup))
     denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
     return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
+
 
 def thermal_dust_rad(nu, Ad=163.e-6, Bd=1.53, Td=21.):
     return krj_to_radiance(nu, thermal_dust(nu, Ad, Bd, Td))
@@ -102,7 +113,6 @@ def co_rad(nu, amp=1.):
     co = x[1]
     fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value="extrapolate")
     return amp * 10. ** fs(log10(nu)) * 1e-26
-
 
 def co(nu, amp=1.):
     return radiance_to_krj(nu, co_rad(nu, amp))
