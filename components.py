@@ -127,7 +127,7 @@ def kDeltaI_reltSZ_2param(freqs, y_tot=1.77e-6, kTmom1=0.207937):
 
 # 2-parameter version of rel. tSZ -- formulated in terms of y_tot and y-weighted effective temperature
 # freqs in Hz, y parameter dimensionless, kT_yweight in keV, DeltaI_reltSZ in W/m^2/Hz/sr
-def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505):
+def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.295):
     # immediately convert from ytot to tau_ICM
     tau = y_tot/kT_yweight * m_elec
     X = hplanck*freqs/(kboltz*TCMB)
@@ -142,7 +142,7 @@ def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505):
     #third-order; "only" = no Y0 term (i.e., no non-rel. term)
     return X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only)
 
-def kDeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.29505):
+def kDeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.295):
     return r2k(freqs, DeltaI_reltSZ_2param_yweight(freqs, y_tot, kT_yweight))
 
 # recombination lines from template
