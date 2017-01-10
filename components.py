@@ -15,7 +15,7 @@ The output is Delta I, the specific intensity measured with respect to the assum
 """
 
 # constants (MKS units, except electron rest mass)
-TCMB = 2.7255 #Kelvin
+TCMB = 2.726 #Kelvin
 hplanck=6.626068e-34 #MKS
 kboltz=1.3806503e-23 #MKS
 clight=299792458.0 #MKS
