@@ -65,7 +65,7 @@ def kspinning_dust(nu, Asd=92.e-6):
     denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
     return Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd
 
-def spinning_dust(nu, Asd=92.e-6):
+def spinning_dust(nu, Asd=1470.e-26):
     nup = 19.0e9
     nu0 = 22.8e9
     nup0 = 30.e9
@@ -75,7 +75,7 @@ def spinning_dust(nu, Asd=92.e-6):
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
     numer_fsd = 10.0 ** fsd(log10(nu * nup0 / nup))
     denom_fsd = 10.0 ** fsd(log10(nu0 * nup0 / nup))
-    return krj_to_radiance(nu, Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd)
+    return Asd * numer_fsd / denom_fsd
 
 def spinning_dust2(nu, Asd=92.e-6, nup=19.e9):
     nu0 = 22.8e9
