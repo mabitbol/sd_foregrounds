@@ -66,14 +66,14 @@ def kspinning_dust(nu, Asd=92.e-6):
     return Asd * (nu0 / nu) ** 2 * numer_fsd / denom_fsd
 
 
-def ame_rad(nu, Asd=1.):
+def spinning_dust(nu, Asd=1.):
     ame_file = np.loadtxt('templates/ame.txt')
     ame_nu = ame_file[0]
     ame_I = ame_file[1]
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
     return Asd * 10.**fsd(log10(nu)) 
 
-def spinning_dust(nu, Asd=1470.e-26):
+def spinning_dust_rad_old(nu, Asd=1470.e-26):
     nup = 19.0e9
     nu0 = 22.8e9
     nup0 = 30.e9
