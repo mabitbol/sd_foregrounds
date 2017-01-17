@@ -70,12 +70,13 @@ class FisherEstimation:
         return
 
     def band_averaging_frequencies(self):
-        freqs = np.arange(self.fmin-self.fstep/2. + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step)
+        lowf = self.fmin - self.fstep/2. + self.bandpass_step/2.
+        if lowf <= 0:
+            lowf = self.bandpass_step/2.
+        freqs = np.arange(lowf, self.fmax + self.fstep, self.bandpass_step)
         binstep = int(self.fstep / self.bandpass_step)
         freqs = freqs[:(len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
-        if centerfreqs[0] != self.fmin:
-            print "center freqs are off by ", self.fmin - centerfreqs[0]
         return freqs, centerfreqs, binstep
 
     def pixie_sensitivity(self):
