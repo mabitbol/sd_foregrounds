@@ -6,8 +6,9 @@ import foregrounds as fg
 
 
 class FisherEstimation:
-    def __init__(self, fmin=8.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True,\
-                    fsky=0.7, mult=1., priors={'alps':0.1}):
+    def __init__(self, fmin=15.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True,\
+                    fsky=0.7, mult=1., priors={'alps':0.1}, bandpass_step=1.e8):
+        self.bandpass_step = bandpass_step
         self.fmin = fmin
         self.fmax = fmax
         self.fstep = fstep
@@ -69,10 +70,12 @@ class FisherEstimation:
         return
 
     def band_averaging_frequencies(self):
-        freqs = np.arange(self.fmin, self.fmax + self.fstep, 1.e9)
-        binstep = int(self.fstep / 1.e9)
+        freqs = np.arange(self.fmin-self.fstep/2. + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step)
+        binstep = int(self.fstep / self.bandpass_step)
         freqs = freqs[:(len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
+        if centerfreqs[0] != self.fmin:
+            print "center freqs are off by ", self.fmin - centerfreqs[0]
         return freqs, centerfreqs, binstep
 
     def pixie_sensitivity(self):

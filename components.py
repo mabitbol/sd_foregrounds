@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import interpolate
 
-from foregrounds import radiance_to_krj as r2k
+from other_foregrounds import radiance_to_krj as r2k
 
 PIXIE_freq_min = 37.5e9 #central frequency of lowest channel (lower bound is 30 GHz)
 PIXIE_freq_max = 6.0225e12 #central frequency of highest channel (chose this to get 400 total channels)
