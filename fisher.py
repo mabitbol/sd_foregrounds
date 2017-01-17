@@ -1,10 +1,8 @@
 import inspect
-
 import numpy as np
 
-import components as sd
+import spectral_distortions as sd
 import foregrounds as fg
-from foregrounds import radiance_to_krj as r2k
 
 
 class FisherEstimation:
@@ -85,9 +83,6 @@ class FisherEstimation:
                              right=-21.)
         skysr = 4. * np.pi * (180. / np.pi) ** 2 * self.fsky
         return 10. ** template / np.sqrt(skysr) * np.sqrt(15. / self.duration) * self.mult
-
-    def kpixie_sensitivity(self):
-        return r2k(self.center_frequencies, self.pixie_sensitivity())
 
     def get_function_args(self):
         targs = []
