@@ -24,21 +24,11 @@ def spinning_dust(nu, Asd=1.):
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
     return Asd * 10.**fsd(log10(nu)) 
 
-def thermal_dust_rad(nu, Ad=5., Bd=1.53, Td=21.):
-    nu0 = 545.0e9  # planck frequency
-    gam = hplanck / (kboltz * Td)
-    return Ad * (nu/1.e9)**2 * (nu / nu0) ** (Bd + 1.0) * (np.exp(gam * nu0) - 1.0) / (np.exp(gam * nu) - 1.0) * jy
-
-def thermal_dust_rad2(nu, Ad=1.36e6, Bd=4.53, Td=21.):
+def thermal_dust_rad(nu, Ad=1.36e6, Bd=4.53, Td=21.):
     X = hplanck * nu / (kboltz * Td)
     return Ad * X**Bd / (np.exp(X) - 1.0) * jy
 
-def cib_rad(nu, Acib=1.38, Bcib=0.86, Tcib=18.8):
-    nu0 = 545.0e9
-    gam = hplanck / (kboltz * Tcib)
-    return Acib * (nu/1.e9)**2 * (nu / nu0) ** (Bcib + 1.0) * (np.exp(gam * nu0) - 1.0) / (np.exp(gam * nu) - 1.0) * jy
-
-def cib_rad2(nu, Acib=3.46e5, Bcib=3.86, Tcib=18.8):
+def cib_rad(nu, Acib=3.46e5, Bcib=3.86, Tcib=18.8):
     X = hplanck * nu / (kboltz * Tcib)
     return Acib * X**Bcib / (np.exp(X) - 1.0) * jy
 
