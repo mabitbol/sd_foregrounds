@@ -33,10 +33,10 @@ def cib_rad(nu, Acib=3.46e5, Bcib=3.86, Tcib=18.8):
     X = hplanck * nu / (kboltz * Tcib)
     return Acib * X**Bcib / (np.exp(X) - 1.0) * jy
 
-def co_rad(nu, amp=1.):
+def co_rad(nu, Aco=1.):
     x = np.load('templates/co_arrays.npy')
     freqs = x[0]
     co = x[1]
     fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value="extrapolate")
-    return amp * 10. ** fs(log10(nu)) * jy
+    return Aco * 10. ** fs(log10(nu)) * jy
 

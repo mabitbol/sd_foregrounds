@@ -84,8 +84,6 @@ class FisherEstimation:
         sdata = np.loadtxt('templates/Sensitivities.dat')
         fs = sdata[:, 0] * 1e9
         sens = sdata[:, 1]
-        #template = np.interp(np.log10(self.center_frequencies), np.log10(fs), np.log10(sens), left=-23.126679398184603,
-        #                     right=-21.)
         template = interpolate.interp1d(np.log10(fs), np.log10(sens), bounds_error=False, fill_value="extrapolate")
         skysr = 4. * np.pi * (180. / np.pi) ** 2 * self.fsky
         if self.bandpass:
@@ -94,16 +92,6 @@ class FisherEstimation:
             return noise.reshape(( N / self.binstep, self.binstep)).mean(axis=1)
         else:
             return 10. ** template(np.log10(self.center_frequencies)) / np.sqrt(skysr) * np.sqrt(15. / self.duration) * self.mult * 1.e26
-        
-
-    def pixie_sensitivity2(self):
-        sdata = np.loadtxt('templates/Sensitivities.dat')
-        fs = sdata[:, 0] * 1e9
-        sens = sdata[:, 1]
-        template = np.interp(np.log10(self.center_frequencies), np.log10(fs), np.log10(sens), left=-23.126679398184603,
-                             right=-21.)
-        skysr = 4. * np.pi * (180. / np.pi) ** 2 * self.fsky
-        return 10. ** template / np.sqrt(skysr) * np.sqrt(15. / self.duration) * self.mult * 1.e26
 
     def get_function_args(self):
         targs = []
@@ -131,7 +119,10 @@ class FisherEstimation:
     def signal_derivative(self, x, x0):
         h = 1.e-4
         zp = 1. + h
-        return (self.measure_signal(**{x: x0 * zp}) - self.measure_signal(**{x: x0})) / (h * x0)
+        deriv = (self.measure_signal(**{x: x0 * zp}) - self.measure_signal(**{x: x0})) / (h * x0)
+        #mask = deriv == 0.0
+        #deriv[mask] = 1.e-10
+        return deriv
 
     def measure_signal(self, **kwarg):
         if self.bandpass:
