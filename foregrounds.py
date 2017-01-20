@@ -4,7 +4,8 @@ from scipy import interpolate
 
 hplanck = 6.626068e-34  # MKS
 kboltz = 1.3806503e-23  # MKS
-jy = 1.e-26
+#jy = 1.e-26
+jy = 1.
 
 def jens_synch_rad(nu, As=288., alps=-0.82, w2s=0.2):
     nu0s = 100.e9
@@ -22,7 +23,7 @@ def spinning_dust(nu, Asd=1.):
     ame_nu = ame_file[0]
     ame_I = ame_file[1]
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
-    return Asd * 10.**fsd(log10(nu)) 
+    return Asd * 10.**fsd(log10(nu)) * 1.e26
 
 def thermal_dust_rad(nu, Ad=1.36e6, Bd=4.53, Td=21.):
     X = hplanck * nu / (kboltz * Td)
