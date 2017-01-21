@@ -38,9 +38,8 @@ class FisherEstimation:
         normF = np.zeros([N, N])
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
-        cov = (np.mat(normF) * np.mat(F)).I * np.mat(normF)
+        self.cov = (np.mat(normF) * np.mat(F)).I * np.mat(normF)
         self.F = F
-        self.cov = cov
         self.get_errors()
         return
 
@@ -120,8 +119,6 @@ class FisherEstimation:
         h = 1.e-4
         zp = 1. + h
         deriv = (self.measure_signal(**{x: x0 * zp}) - self.measure_signal(**{x: x0})) / (h * x0)
-        #mask = deriv == 0.0
-        #deriv[mask] = 1.e-10
         return deriv
 
     def measure_signal(self, **kwarg):
@@ -136,8 +133,6 @@ class FisherEstimation:
             args = argsp[0][1:]
             if len(kwarg) and kwarg.keys()[0] in args:
                 model += fnc(frequencies, **kwarg)
-            else:
-                model += fnc(frequencies)
         if self.bandpass:
             return model.reshape((N / self.binstep, self.binstep)).mean(axis=1)
         else:
