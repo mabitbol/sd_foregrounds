@@ -4,6 +4,7 @@ from scipy import interpolate
 
 import spectral_distortions as sd
 import foregrounds as fg
+ndp = np.float128
 
 
 class FisherEstimation:
@@ -35,10 +36,10 @@ class FisherEstimation:
             if k in self.args and self.priors[k] > 0:
                 kindex = np.where(self.args == k)[0][0]
                 F[kindex, kindex] += 1. / (self.priors[k] * self.argvals[k])**2
-        normF = np.zeros([N, N])
+        normF = np.zeros([N, N], dtype=ndp)
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
-        self.cov = (np.mat(normF) * np.mat(F)).I * np.mat(normF)
+        self.cov = ((np.mat(normF, dtype=ndp) * np.mat(F, dtype=ndp)).I * np.mat(normF, dtype=ndp)).astype(ndp)
         self.F = F
         self.get_errors()
         return
@@ -80,7 +81,7 @@ class FisherEstimation:
         return freqs, centerfreqs, binstep
 
     def pixie_sensitivity(self):
-        sdata = np.loadtxt('templates/Sensitivities.dat')
+        sdata = np.loadtxt('templates/Sensitivities.dat', dtype=ndp)
         fs = sdata[:, 0] * 1e9
         sens = sdata[:, 1]
         template = interpolate.interp1d(np.log10(fs), np.log10(sens), bounds_error=False, fill_value="extrapolate")
@@ -88,9 +89,9 @@ class FisherEstimation:
         if self.bandpass:
             N = len(self.band_frequencies)
             noise = 10. ** template(np.log10(self.band_frequencies)) / np.sqrt(skysr) * np.sqrt(15. / self.duration) * self.mult * 1.e26
-            return noise.reshape(( N / self.binstep, self.binstep)).mean(axis=1)
+            return (noise.reshape(( N / self.binstep, self.binstep)).mean(axis=1)).astype(ndp)
         else:
-            return 10. ** template(np.log10(self.center_frequencies)) / np.sqrt(skysr) * np.sqrt(15. / self.duration) * self.mult * 1.e26
+            return (10. ** template(np.log10(self.center_frequencies)) / np.sqrt(skysr) * np.sqrt(15. / self.duration) * self.mult * 1.e26).astype(ndp)
 
     def get_function_args(self):
         targs = []
@@ -105,7 +106,7 @@ class FisherEstimation:
 
     def calculate_fisher_matrix(self):
         N = len(self.p0)
-        F = np.zeros([N, N])
+        F = np.zeros([N, N], dtype=ndp)
         for i in range(N):
             dfdpi = self.signal_derivative(self.args[i], self.p0[i])
             dfdpi /= self.noise
@@ -127,7 +128,7 @@ class FisherEstimation:
         else:
             frequencies = self.center_frequencies
         N = len(frequencies)
-        model = np.zeros(N)
+        model = np.zeros(N, dtype=ndp)
         for fnc in self.signals:
             argsp = inspect.getargspec(fnc)
             args = argsp[0][1:]
