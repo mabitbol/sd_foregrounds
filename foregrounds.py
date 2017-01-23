@@ -26,13 +26,13 @@ def spinning_dust(nu, Asd=1.):
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")
     return (Asd * 10.**fsd(log10(nu)) * 1.e26).astype(ndp)
 
-def thermal_dust_rad(nu, Ad=1.36e6, Bd=4.53, Td=21.):
+def thermal_dust_rad(nu, Ad=1.36e6, Bd=1.53, Td=21.):
     X = hplanck * nu / (kboltz * Td)
-    return (Ad * X**Bd / (np.exp(X) - 1.0) * jy).astype(ndp)
+    return (Ad * X**Bd * X**3. / (np.exp(X) - 1.0) * jy).astype(ndp)
 
-def cib_rad(nu, Acib=3.46e5, Bcib=3.86, Tcib=18.8):
+def cib_rad(nu, Acib=3.46e5, Bcib=0.86, Tcib=18.8):
     X = hplanck * nu / (kboltz * Tcib)
-    return (Acib * X**Bcib / (np.exp(X) - 1.0) * jy).astype(ndp)
+    return (Acib * X**Bcib * X**3. / (np.exp(X) - 1.0) * jy).astype(ndp)
 
 def co_rad(nu, Aco=1.):
     x = np.load('templates/co_arrays.npy').astype(ndp)
