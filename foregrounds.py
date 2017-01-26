@@ -20,7 +20,7 @@ def jens_freefree_rad(nu, EM=300.):
     return (EM * gff * jy).astype(ndp)
 
 def spinning_dust(nu, Asd=1.):
-    ame_file = np.loadtxt('templates/ame.txt', dtype=ndp)
+    ame_file = np.load('templates/ame.npy').astype(ndp)
     ame_nu = ame_file[0]
     ame_I = ame_file[1]
     fsd = interpolate.interp1d(log10(ame_nu), log10(ame_I), bounds_error=False, fill_value="extrapolate")

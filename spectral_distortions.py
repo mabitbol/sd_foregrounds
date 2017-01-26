@@ -11,18 +11,15 @@ jy = 1.e26
 
 ndp = np.float128
 
-def DeltaI_DeltaT(freqs, DeltaT_amp=1.2):
-    DeltaT_amp *= 1.e-4
+def DeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4):
     X = hplanck*freqs/(kboltz*TCMB)
     return (DeltaT_amp * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * jy).astype(ndp)
 
-def DeltaI_mu(freqs, mu_amp=2.):
-    mu_amp *= 1.e-8
+def DeltaI_mu(freqs, mu_amp=2.e-8):
     X = hplanck*freqs/(kboltz*TCMB)
     return (mu_amp * (X / 2.1923 - 1.0)/X * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * jy).astype(ndp)
 
-def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77, kT_yweight=1.245):
-    y_tot *= 1.e-6
+def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.245):
     tau = y_tot/kT_yweight * m_elec
     X = hplanck*freqs/(kboltz*TCMB)
     Xtwid = X*np.cosh(0.5*X)/np.sinh(0.5*X)
