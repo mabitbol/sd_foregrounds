@@ -12,6 +12,10 @@ def jens_synch_rad(nu, As=288., alps=-0.82, w2s=0.2):
     nu0s = 100.e9
     return (As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2) * jy).astype(ndp)
 
+def jens_synch_rad1(nu, As=288., alps=-0.82):
+    nu0s = 100.e9
+    return (As * (nu / nu0s) ** alps * jy).astype(ndp)
+
 def jens_freefree_rad(nu, EM=300.):
     Te = 7000.
     Teff = (Te / 1.e3) ** (3. / 2)
