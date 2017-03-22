@@ -9,7 +9,7 @@ ndp = np.float128
 
 class FisherEstimation:
     def __init__(self, fmin=15.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True,\
-                    fsky=0.7, mult=1., priors={'alps':0.1}, bandpass_step=1.e8):
+                    fsky=0.7, mult=1., priors={'alps':0.1, 'As':0.1}, bandpass_step=1.e8):
         self.bandpass_step = bandpass_step
         self.fmin = fmin
         self.fmax = fmax
