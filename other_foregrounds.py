@@ -137,7 +137,7 @@ def co(nu, amp=1.):
 
 ### Older Functions ###
 # blackbody T to W/Hz/sr/m^2
-def blackbody(nu, T):
+def blackbody(nu, T=2.725):
     X = hplanck * nu / (kboltz * T)
     return 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(X) - 1.0))
 
