@@ -8,11 +8,11 @@ ndp = np.float128
 
 
 class FisherEstimation:
-    def __init__(self, fmin=15.e9, fmax=3.e12, fstep=15.e9, duration=86.4, bandpass=True,\
-                    fsky=0.7, mult=1., priors={'alps':0.1, 'As':0.1}, bandpass_step=1.e8):
-        self.bandpass_step = bandpass_step
-        self.fmin = fmin
-        self.fmax = fmax
+    def __init__(self, fstep=15.e9, duration=86.4, bandpass=True,\
+                    fsky=0.7, mult=1., priors={'alps':0.1, 'As':0.1}):
+        self.fmin = 7.5e9
+        self.fmax = 3.e12
+        self.bandpass_step = 1.e8
         self.fstep = fstep
         self.duration = duration
         self.bandpass = bandpass
@@ -67,14 +67,11 @@ class FisherEstimation:
         if self.bandpass:
             self.band_frequencies, self.center_frequencies, self.binstep = self.band_averaging_frequencies()
         else:
-            self.center_frequencies = np.arange(self.fmin, self.fmax + self.fstep, self.fstep)
+            self.center_frequencies = np.arange(self.fmin + self.fstep/2., self.fmax + self.fstep, self.fstep)
         return
 
     def band_averaging_frequencies(self):
-        lowf = self.fmin - self.fstep/2. + self.bandpass_step/2.
-        if lowf <= 0:
-            lowf = self.bandpass_step/2.
-        freqs = np.arange(lowf, self.fmax + self.fstep, self.bandpass_step)
+        freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step)
         binstep = int(self.fstep / self.bandpass_step)
         freqs = freqs[:(len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
