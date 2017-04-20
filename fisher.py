@@ -69,11 +69,11 @@ class FisherEstimation:
             self.band_frequencies, self.center_frequencies, self.binstep = self.band_averaging_frequencies()
         else:
             self.center_frequencies = np.arange(self.fmin + self.fstep/2., \
-                                                self.fmax + self.fstep, self.fstep)[self.drop:]
+                                                self.fmax + self.fstep, self.fstep, dtype=ndp)[self.drop:]
         return
 
     def band_averaging_frequencies(self):
-        freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step)
+        freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step, dtype=ndp)
         binstep = int(self.fstep / self.bandpass_step)
         freqs = freqs[self.drop * binstep : (len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
