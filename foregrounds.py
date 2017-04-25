@@ -6,7 +6,7 @@ hplanck = 6.626068e-34  # MKS
 kboltz = 1.3806503e-23  # MKS
 #jy = 1.e-26
 jy = 1.
-ndp = np.float128
+ndp = np.float64
 
 def jens_synch_rad(nu, As=288., alps=-0.82, w2s=0.2):
     nu0s = 100.e9

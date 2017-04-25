@@ -4,7 +4,7 @@ from scipy import interpolate
 
 import spectral_distortions as sd
 import foregrounds as fg
-ndp = np.float128
+ndp = np.float64
 
 
 class FisherEstimation:
@@ -73,7 +73,8 @@ class FisherEstimation:
         return
 
     def band_averaging_frequencies(self):
-        freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step, dtype=ndp)
+        #freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step, dtype=ndp)
+        freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.bandpass_step + self.fmin, self.bandpass_step, dtype=ndp)
         binstep = int(self.fstep / self.bandpass_step)
         freqs = freqs[self.drop * binstep : (len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
