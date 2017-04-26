@@ -28,6 +28,34 @@ def sens_vs_dnu(fmax=61, fstep=0.1, sens=[1., 0.1, 0.01, 0.001]):
     np.save('datatest', x)
     return
 
+def sens_vs_nbins(sens=[1., 0.1, 0.01, 0.001]):
+    nbins = np.arange(50, 601)[::-1]
+    dnu = 3.e12 / nbins
+    fish = fisher.FisherEstimation()
+    args = fish.args
+    N = len(args)
+    data = {}
+    for sen in sens:
+        print "on sens ", sen
+        data[sen] = {}
+        for arg in args:
+            data[sen][arg] = []
+        for nu in dnu:
+            scale = sen * (15.e9 / nu)
+            #ps = {'As':0.1, 'alps': 0.1}
+            #ps = {'As':0.01, 'alps': 0.01}
+            ps = {}
+            fish = fisher.FisherEstimation(fstep=nu, mult=scale, priors=ps)
+            fish.run_fisher_calculation()
+            for arg in args:
+                data[sen][arg].append(fish.errors[arg])
+    x = {}
+    x['sens'] = sens
+    x['dnu'] = dnu
+    x['data'] = data
+    np.save('senscalc_nbins_0p', x)
+    return
+
 
 def drop_vs_dnu(fmax=61, fstep=0.1, drops=[0, 1, 2]):
     dnu = np.arange(1, fmax, fstep) * 1.e9
@@ -151,9 +179,9 @@ def drop_vs_nbin_nomu(drops=[0, 1, 2]):
     np.save('fullcalc_10p_drop012_nbins_nomu', x)
     return
 
-drop_vs_nbin_nomu()
+#drop_vs_nbin_nomu()
 #drop_vs_dnu(fmax=61, fstep=0.1, drops=[0, 1, 2])
 #drop_vs_dnu_nomu(fmax=61, fstep=0.1, drops=[0, 1, 2])
-
+sens_vs_nbins()
 
 
