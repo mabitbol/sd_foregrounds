@@ -3,4 +3,6 @@
 *.swp
 *.png
 *.fits
-*/
+*old/
+*plots/
+*templates/
