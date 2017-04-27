@@ -143,7 +143,7 @@ def drop_vs_nbin(drops=[0, 1, 2]):
     x['drops'] = drops
     x['dnu'] = dnu
     x['data'] = data
-    np.save('fullcalc_10p_drop012_nbins', x)
+    np.save('fullcalc_10p_drop012_nbins_onefifthsynch', x)
     return
 
 def drop_vs_nbin_nomu(drops=[0, 1, 2]):
@@ -180,8 +180,9 @@ def drop_vs_nbin_nomu(drops=[0, 1, 2]):
     return
 
 #drop_vs_nbin_nomu()
+drop_vs_nbin()
 #drop_vs_dnu(fmax=61, fstep=0.1, drops=[0, 1, 2])
 #drop_vs_dnu_nomu(fmax=61, fstep=0.1, drops=[0, 1, 2])
-sens_vs_nbins()
+#sens_vs_nbins()
 
 
