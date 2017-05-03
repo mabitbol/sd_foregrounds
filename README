@@ -6,8 +6,8 @@ Spectral Distortion Foreground Study
 --just monopole brightness (specific intensity) no anisotropies, relative to CMBT=2.725K
 
 Signals TODO:
-- CO lines (and other lines)
 - Extragalactic synchrotron (??)
+- #Emission from various spectral lines (e.g., CO -- see for example
 
 
 Signals:
@@ -22,6 +22,6 @@ Signals:
 - Galactic "anomalous microwave emission" (perhaps spinning dust)
 - Galactic free-free emission
 - CIB
+- CO lines (and other lines)
 
-- #Emission from various spectral lines (e.g., CO -- see for example
 
