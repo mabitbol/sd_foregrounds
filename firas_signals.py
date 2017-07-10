@@ -28,6 +28,13 @@ def DeltaI_y(freqs, y_amp=1.77e-6):
     return jy * y_amp * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0
 
 def firas():
+    x = np.loadtxt('data/firas_monopole_spec_v1.txt')
+    ffs = x[:, 0] + 0.
+    onesigmas = x[:, 3] * 1000   #Jy/sr
+    ffs *= clight * 100.         #Hz
+    return ffs, onesigmas
+
+def firas2():
     z = np.loadtxt('templates/firassensitivity.txt')
     firasfreqs = z[0]*1.e9
     firasnoise = z[1]
