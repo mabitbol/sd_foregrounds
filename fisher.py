@@ -8,10 +8,11 @@ ndp = np.float64
 
 
 class FisherEstimation:
-    def __init__(self, fstep=15.e9, duration=86.4, bandpass=True, fsky=0.7, mult=1., \
+    def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
+                 duration=86.4, bandpass=True, fsky=0.7, mult=1., \
                  priors={'alps':0.1, 'As':0.1}, drop=0):
-        self.fmin = 7.5e9
-        self.fmax = 3.e12
+        self.fmin = fmin
+        self.fmax = fmax
         self.bandpass_step = 1.e8
         self.fstep = fstep
         self.duration = duration
@@ -58,7 +59,7 @@ class FisherEstimation:
     def set_signals(self, fncs=None):
         if fncs is None:
             fncs = [sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight, sd.DeltaI_DeltaT,
-                    fg.thermal_dust_rad, fg. cib_rad, fg.jens_freefree_rad, 
+                    fg.thermal_dust_rad, fg.cib_rad, fg.jens_freefree_rad, 
                     fg.jens_synch_rad, fg.spinning_dust, fg.co_rad]
         self.signals = fncs
         self.args, self.p0, self.argvals = self.get_function_args()
@@ -78,6 +79,7 @@ class FisherEstimation:
         binstep = int(self.fstep / self.bandpass_step)
         freqs = freqs[self.drop * binstep : (len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
+        #self.windowfnc = np.sinc((np.arange(binstep)-(binstep/2-1))/float(binstep))
         return freqs, centerfreqs, binstep
 
     def pixie_sensitivity(self):
@@ -135,7 +137,10 @@ class FisherEstimation:
             if len(kwarg) and kwarg.keys()[0] in args:
                 model += fnc(frequencies, **kwarg)
         if self.bandpass:
+            #rmodel = model.reshape((N / self.binstep, self.binstep)) 
+            #total = rmodel * self.windowfnc
             return model.reshape((N / self.binstep, self.binstep)).mean(axis=1)
+            return total.mean(axis=1)
         else:
             return model
 
