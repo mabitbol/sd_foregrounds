@@ -10,7 +10,7 @@ ndp = np.float64
 class FisherEstimation:
     def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
                  duration=86.4, bandpass=True, fsky=0.7, mult=1., \
-                 priors={'alps':0.1, 'As':0.1}, drop=0):
+                 priors={'alps':0.1, 'As':0.1}, drop=0, doCO=False):
         self.fmin = fmin
         self.fmax = fmax
         self.bandpass_step = 1.e8
@@ -24,6 +24,11 @@ class FisherEstimation:
 
         self.setup()
         self.set_signals()
+        
+        if doCO:
+            self.mask = ~np.isclose(115.27e9, self.center_frequencies, atol=self.fstep/2.)
+        else:
+            self.mask = np.ones(len(self.center_frequencies), bool)
         return
 
     def setup(self):
@@ -115,7 +120,8 @@ class FisherEstimation:
             for j in range(N):
                 dfdpj = self.signal_derivative(self.args[j], self.p0[j])
                 dfdpj /= self.noise
-                F[i, j] = np.dot(dfdpi, dfdpj)
+                #F[i, j] = np.dot(dfdpi, dfdpj)
+                F[i, j] = np.dot(dfdpi[self.mask], dfdpj[self.mask])
         return F
 
     def signal_derivative(self, x, x0):
