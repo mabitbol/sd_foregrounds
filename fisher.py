@@ -47,6 +47,7 @@ class FisherEstimation:
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
         self.cov = ((np.mat(normF, dtype=ndp) * np.mat(F, dtype=ndp)).I * np.mat(normF, dtype=ndp)).astype(ndp)
+        #self.cov = np.mat(F, dtype=ndp).I 
         self.F = F
         self.get_errors()
         return
@@ -57,9 +58,12 @@ class FisherEstimation:
             self.errors[arg] = np.sqrt(self.cov[k,k])
         return
 
-    def print_errors(self):
-        for arg in self.args:
-            print arg, self.errors[arg], self.argvals[arg]/self.errors[arg]
+    def print_errors(self, args=None):
+        if not args:
+            args = self.args
+        for arg in args:
+            #print arg, self.errors[arg], self.argvals[arg]/self.errors[arg]
+            print arg, self.argvals[arg]/self.errors[arg]
 
     def set_signals(self, fncs=None):
         if fncs is None:
@@ -146,7 +150,7 @@ class FisherEstimation:
             #rmodel = model.reshape((N / self.binstep, self.binstep)) 
             #total = rmodel * self.windowfnc
             return model.reshape((N / self.binstep, self.binstep)).mean(axis=1)
-            return total.mean(axis=1)
+            #return total.mean(axis=1)
         else:
             return model
 

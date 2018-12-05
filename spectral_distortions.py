@@ -2,7 +2,7 @@ import numpy as np
 
 ### See components for a better description of the signals. 
 
-TCMB = 2.726 #Kelvin
+TCMB = 2.725 #Kelvin
 hplanck=6.626068e-34 #MKS
 kboltz=1.3806503e-23 #MKS
 clight=299792458.0 #MKS
@@ -32,6 +32,16 @@ def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.245):
     return (X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only) * jy).astype(ndp)
 
 
-def DeltaI_y(freqs, y_amp=1.77e-6):
+def DeltaI_y(freqs, y_tot=1.77e-6):
     X = hplanck*freqs/(kboltz*TCMB)
-    return ((y_amp * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0) * jy).astype(ndp)
+    return ((y_tot * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0) * jy).astype(ndp)
+
+
+def blackbody(nu, DT=1.e-3):
+    T = DT*TCMB + TCMB
+    X = hplanck * nu / (kboltz * T)
+    Xcmb = hplanck * nu / (kboltz * TCMB)
+    bbT = 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(X) - 1.0))
+    bbTcmb = 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(Xcmb) - 1.0))
+    return ( (bbT - bbTcmb)*jy ).astype(ndp)
+
