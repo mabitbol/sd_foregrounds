@@ -1,6 +1,5 @@
 import numpy as np
-
-### See components for a better description of the signals. 
+import sympy as sym
 
 TCMB = 2.725 #Kelvin
 hplanck=6.626068e-34 #MKS
@@ -9,7 +8,46 @@ clight=299792458.0 #MKS
 m_elec = 510.999 #keV!
 jy = 1.e26
 
-ndp = np.float64
+def sym_power_law():
+    x_0 = 100.e9
+    x, amp, beta = sym.symbols('x amp beta')
+    expr = amp * sym.power.Pow(x/x_0, beta)
+    params = [amp, beta]
+    return x, [amp, beta], expr
+
+def sym_mbb():
+    x, amp, beta, invtemp = sym.symbols('x amp beta invtemp')
+    X = hplanck * x * invtemp / kboltz
+    expr = amp * sym.power.Pow(X, beta) * X**3 / (sym.exp(X) - 1. )
+    return x, [amp, beta, invtemp], expr
+
+
+
+------------------------------------------------------------------------------
+# old functions
+def jens_synch_rad(nu, As=288., alps=-0.82, w2s=0.2):
+    nu0s = 100.e9
+    return (As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2) * jy).astype(ndp)
+
+def jens_synch_rad1(nu, As=288., alps=-0.82):
+    nu0s = 100.e9
+    return (As * (nu / nu0s) ** alps * jy).astype(ndp)
+
+def jens_freefree_rad(nu, EM=300.):
+    Te = 7000.
+    Teff = (Te / 1.e3) ** (3. / 2)
+    nuff = 255.33e9 * Teff
+    gff = 1. + np.log(1. + (nuff / nu) ** (np.sqrt(3) / np.pi))
+    return (EM * gff * jy).astype(ndp)
+
+def thermal_dust_rad(nu, Ad=1.36e6, Bd=1.53, Td=21.):
+    X = hplanck * nu / (kboltz * Td)
+    return (Ad * X**Bd * X**3. / (np.exp(X) - 1.0) * jy).astype(ndp)
+
+def cib_rad(nu, Acib=3.46e5, Bcib=0.86, Tcib=18.8):
+    X = hplanck * nu / (kboltz * Tcib)
+    return (Acib * X**Bcib * X**3. / (np.exp(X) - 1.0) * jy).astype(ndp)
+
 
 def DeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4):
     X = hplanck*freqs/(kboltz*TCMB)
@@ -31,11 +69,9 @@ def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.245):
     gfuncrel_only=Y1*(kT_yweight/m_elec)+Y2*(kT_yweight/m_elec)**2.0+Y3*(kT_yweight/m_elec)**3.0
     return (X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only) * jy).astype(ndp)
 
-
 def DeltaI_y(freqs, y_tot=1.77e-6):
     X = hplanck*freqs/(kboltz*TCMB)
     return ((y_tot * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0) * jy).astype(ndp)
-
 
 def blackbody(nu, DT=1.e-3):
     T = DT*TCMB + TCMB
