@@ -8,3 +8,5 @@ plots/
 templates/
 .idea/
 /data/
+*.txt
+*.npy
