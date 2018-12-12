@@ -2,8 +2,8 @@ import numpy as np
 from numpy import log10
 from scipy import interpolate
 
-hplanck = 6.626068e-34  # MKS
-kboltz = 1.3806503e-23  # MKS
+hplanck = 6.626070150e-34  # MKS
+kboltz = 1.380649e-23  # MKS
 #jy = 1.e-26
 jy = 1.
 ndp = np.float64
