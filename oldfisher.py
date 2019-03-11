@@ -4,49 +4,7 @@ import inspect
 import sympy as sym
 import signals 
 
-class Fisher:
-    def __init__(self, x, signals, noise):
-        self.x = x
-        self.lenx = len(x)
-        self.signals = signals
-        self.noise = noise
-        
-        self.setup_signals()
-    
-    def setup_signals(self):
-        # do something get args, values, etc
-        
-    def calculate_sed_derivative_matrix(self):
-        smat = np.zeros(( self.nargs, self.nargs, self.lenx ))
-        for i in range(self.nargs):
-            dfdpi = self.signal_derivative(self.args[i], self.p0[i])
-            for j in range(self.nargs):
-                dfdpj = self.signal_derivative(self.args[j], self.p0[j])
-                smat[i, j] = dfdpi * dfdpj
-        self.sed_derivative_matrix = smat
-
-    def calculate_fisher_matrix(self):
-        inverse_variance = 1. / (self.noise * self.noise) # check if this is shitty? 
-        Fmat = np.zeros(( self.nargs, self.nargs ))
-        for i in range(self.nargs):
-            for j in range(self.nargs):
-                Fmat[i, j] = np.dot( self.sed_derivative_matrix[i, j], inverse_variance )
-        self.Fmat = np.mat(Fmat)
-
-    def calculate_covariance(self):
-        if np.linalg.cond(self.Fmat) > (1. / sys.float_info.epsilon):
-            print "bad"
-            u, s, vh = np.linalg.svd(self.Fmat, full_matrices=True)
-            # etc
-        else:
-            cov = np.linalg.solve(self.Fmat, np.identity(self.nargs))
-
-
-
-
-
-
-
+class OldFisher:
     def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
                  duration=86.4, bandpass=True, fsky=0.7, mult=1., \
                  priors={'alps':0.1, 'As':0.1}, drop=0, doCO=False):

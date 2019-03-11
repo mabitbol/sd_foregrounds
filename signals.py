@@ -8,7 +8,10 @@ clight=299792458.0 #MKS
 m_elec = 510.999 #keV!
 jy = 1.e26
 
-def sym_power_law():
+
+
+
+def power_law():
     x_0 = 100.e9
     x, amp, beta = sym.symbols('x amp beta')
     expr = amp * sym.power.Pow(x/x_0, beta)

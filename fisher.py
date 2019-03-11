@@ -33,13 +33,18 @@ class Fisher:
                 Fmat[i, j] = np.dot( self.sed_derivative_matrix[i, j], inverse_variance )
         self.Fmat = np.mat(Fmat)
 
-    def calculate_covariance(self):
-        if np.linalg.cond(self.Fmat) > (1. / sys.float_info.epsilon):
-            print "bad"
-            u, s, vh = np.linalg.svd(self.Fmat, full_matrices=True)
-            # etc
-        else:
+    def calculate_covariance(self, check_good=True):
+        if check_good: 
+            if np.linalg.cond(self.Fmat) > (1. / sys.float_info.epsilon):
+                print "bad"
+                u, s, vh = np.linalg.svd(self.Fmat, full_matrices=True)
+                # etc
+                cov = 1
+            else:
+                cov = np.linalg.solve(self.Fmat, np.identity(self.nargs))
+        else: 
             cov = np.linalg.solve(self.Fmat, np.identity(self.nargs))
+        return cov
 
 
 
