@@ -63,7 +63,7 @@ class FisherEstimation:
             args = self.args
         for arg in args:
             #print arg, self.errors[arg], self.argvals[arg]/self.errors[arg]
-            print arg, self.argvals[arg]/self.errors[arg]
+            print(arg, self.argvals[arg]/self.errors[arg])
 
     def set_signals(self, fncs=None):
         if fncs is None:
