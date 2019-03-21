@@ -26,5 +26,5 @@ fish = fisher.FisherEstimation(fmin=5.e9, fmax=1.e12, fstep=5.e9, duration=60, m
 
 
 # Lastly to put priors (in fractions of the parameter value), drop the first n bins or mask out Galactic CO lines do:
-fish = fisher.FisherEstimation(priors={'Td':0.1, 'Asd':0.01}, drop=2, doCO=True) 
+fish = fisher.FisherEstimation(priors={'Td':0.1, 'Asd':0.01}) 
 

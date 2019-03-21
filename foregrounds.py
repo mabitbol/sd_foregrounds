@@ -45,7 +45,6 @@ def co_rad(nu, Aco=1.):
     fs = interpolate.interp1d(log10(freqs), log10(co), bounds_error=False, fill_value="extrapolate")
     return (Aco * 10. ** fs(log10(nu)) * jy).astype(ndp)
 
-
 def dust_moments(nu, Adm=3.2e-4, alphadm=1.22, Tdm=21.1, omega1=0.09):
     X = hplanck * nu / (kboltz * Tdm)
     nu0 = 100.e9
