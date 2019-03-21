@@ -10,7 +10,7 @@ ndp = np.float64
 class FisherEstimation:
     def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
                  duration=86.4, bandpass=True, fsky=0.7, mult=1., \
-                 priors={'alps':0.1, 'As':0.1}, drop=0, doCO=False):
+                 priors={}):
         self.fmin = fmin
         self.fmax = fmax
         self.bandpass_step = 1.e8
@@ -20,15 +20,9 @@ class FisherEstimation:
         self.fsky = fsky
         self.mult = mult
         self.priors = priors
-        self.drop = drop
 
         self.setup()
         self.set_signals()
-        
-        if doCO:
-            self.mask = ~np.isclose(115.27e9, self.center_frequencies, atol=self.fstep/2.)
-        else:
-            self.mask = np.ones(len(self.center_frequencies), bool)
         return
 
     def setup(self):
@@ -79,16 +73,14 @@ class FisherEstimation:
             self.band_frequencies, self.center_frequencies, self.binstep = self.band_averaging_frequencies()
         else:
             self.center_frequencies = np.arange(self.fmin + self.fstep/2., \
-                                                self.fmax + self.fstep, self.fstep, dtype=ndp)[self.drop:]
+                                                self.fmax + self.fstep, self.fstep, dtype=ndp)
         return
 
     def band_averaging_frequencies(self):
-        #freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.fstep, self.bandpass_step, dtype=ndp)
         freqs = np.arange(self.fmin + self.bandpass_step/2., self.fmax + self.bandpass_step + self.fmin, self.bandpass_step, dtype=ndp)
         binstep = int(self.fstep / self.bandpass_step)
-        freqs = freqs[self.drop * binstep : (len(freqs) / binstep) * binstep]
+        freqs = freqs[: (len(freqs) / binstep) * binstep]
         centerfreqs = freqs.reshape((len(freqs) / binstep, binstep)).mean(axis=1)
-        #self.windowfnc = np.sinc((np.arange(binstep)-(binstep/2-1))/float(binstep))
         return freqs, centerfreqs, binstep
 
     def pixie_sensitivity(self):
@@ -124,8 +116,7 @@ class FisherEstimation:
             for j in range(N):
                 dfdpj = self.signal_derivative(self.args[j], self.p0[j])
                 dfdpj /= self.noise
-                #F[i, j] = np.dot(dfdpi, dfdpj)
-                F[i, j] = np.dot(dfdpi[self.mask], dfdpj[self.mask])
+                F[i, j] = np.dot(dfdpi, dfdpj)
         return F
 
     def signal_derivative(self, x, x0):
@@ -147,10 +138,7 @@ class FisherEstimation:
             if len(kwarg) and kwarg.keys()[0] in args:
                 model += fnc(frequencies, **kwarg)
         if self.bandpass:
-            #rmodel = model.reshape((N / self.binstep, self.binstep)) 
-            #total = rmodel * self.windowfnc
             return model.reshape((N / self.binstep, self.binstep)).mean(axis=1)
-            #return total.mean(axis=1)
         else:
             return model
 
