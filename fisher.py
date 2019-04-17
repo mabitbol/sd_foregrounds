@@ -7,7 +7,6 @@ import foregrounds as fg
 
 ndp = np.float64
 
-
 class FisherEstimation:
     def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
                  duration=86.4, bandpass=True, fsky=0.7, mult=1., \
@@ -57,8 +56,7 @@ class FisherEstimation:
         if not args:
             args = self.args
         for arg in args:
-            #print arg, self.errors[arg], self.argvals[arg]/self.errors[arg]
-            print(arg, self.argvals[arg]/self.errors[arg])
+            print arg, self.argvals[arg] / self.errors[arg]
 
     def set_signals(self, fncs=None):
         if fncs is None:
