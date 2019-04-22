@@ -31,19 +31,30 @@ def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.245):
     gfuncrel_only=Y1*(kT_yweight/m_elec)+Y2*(kT_yweight/m_elec)**2.0+Y3*(kT_yweight/m_elec)**3.0
     return (X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only) * jy).astype(ndp)
 
-
 def DeltaI_y(freqs, y_tot=1.77e-6):
     X = hplanck*freqs/(kboltz*TCMB)
     return ((y_tot * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0) * jy).astype(ndp)
 
-
-def blackbody(nu, DT=1.e-3):
-    T = DT*TCMB + TCMB
+def blackbody(nu, T=2.725):
     X = hplanck * nu / (kboltz * T)
+    bbT = jy * 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(X) - 1.0))
+    return bbT.astype(ndp)
+
+def diff_blackbody(nu, deltaT=1.e-3):
+    T = TCMB - TCMB * deltaT
     Xcmb = hplanck * nu / (kboltz * TCMB)
-    bbT = 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(X) - 1.0))
-    bbTcmb = 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(Xcmb) - 1.0))
-    return ( (bbT - bbTcmb)*jy ).astype(ndp)
+    X = hplanck * nu / (kboltz * T)
+    bbTcmb = jy * 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(Xcmb) - 1.0))
+    bbT = jy * 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(X) - 1.0))
+    return (bbTcmb - bbT).astype(ndp)
+
+def blackbody_H0(nu, H0=7.2e-11):
+    T = TCMB - TCMB * H0 * 1. # 1yr
+    Xcmb = hplanck * nu / (kboltz * TCMB)
+    X = hplanck * nu / (kboltz * T)
+    bbTcmb = jy * 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(Xcmb) - 1.0))
+    bbT = jy * 2.0 * hplanck * (nu * nu * nu) / (clight ** 2) * (1.0 / (np.exp(X) - 1.0))
+    return (bbTcmb - bbT).astype(ndp)
 
 def recombination(freqs, scale=1.0):
     rdata = np.loadtxt('templates/recombination/total_spectrum_f.dat')
@@ -51,4 +62,3 @@ def recombination(freqs, scale=1.0):
     recomb = rdata[:,1]
     template = interpolate.interp1d(np.log10(fs), np.log10(recomb), fill_value=np.log10(1e-30), bounds_error=False)
     return scale * 10.0**template(np.log10(freqs))
-

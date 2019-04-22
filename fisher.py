@@ -10,7 +10,7 @@ ndp = np.float64
 
 class FisherEstimation:
     def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
-                 duration=86.4, bandpass=True, fsky=0.7, mult=1., \
+                 duration=12., bandpass=False, fsky=0.7, mult=1., \
                  priors={}):
         self.fmin = fmin
         self.fmax = fmax
@@ -34,6 +34,7 @@ class FisherEstimation:
     def run_fisher_calculation(self):
         N = len(self.args)
         F = self.calculate_fisher_matrix()
+        self.F = F
         for k in self.priors.keys():
             if k in self.args and self.priors[k] > 0:
                 kindex = np.where(self.args == k)[0][0]
@@ -42,8 +43,7 @@ class FisherEstimation:
         for k in range(N):
             normF[k, k] = 1. / F[k, k]
         self.cov = ((np.mat(normF, dtype=ndp) * np.mat(F, dtype=ndp)).I * np.mat(normF, dtype=ndp)).astype(ndp)
-        #self.cov = np.mat(F, dtype=ndp).I 
-        self.F = F
+        self.cov2 = np.mat(F, dtype=ndp).I 
         self.get_errors()
         return
 
@@ -57,12 +57,12 @@ class FisherEstimation:
         if not args:
             args = self.args
         for arg in args:
-            #print arg, self.errors[arg], self.argvals[arg]/self.errors[arg]
-            print(arg, self.argvals[arg]/self.errors[arg])
+            #print arg, self.errors[arg], np.abs(self.argvals[arg]) / self.errors[arg]
+            print arg, np.abs(self.argvals[arg]) / self.errors[arg]
 
     def set_signals(self, fncs=None):
         if fncs is None:
-            fncs = [sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight, sd.DeltaI_DeltaT,
+            fncs = [sd.DeltaI_DeltaT, sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight,
                     fg.thermal_dust_rad, fg.cib_rad, fg.jens_freefree_rad, 
                     fg.jens_synch_rad, fg.spinning_dust, fg.co_rad]
         self.signals = fncs
