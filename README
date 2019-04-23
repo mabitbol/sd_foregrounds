@@ -1,27 +1,17 @@
-Spectral Distortion Foreground Study
+Spectral Distortion Fisher Forecasting
 
-1) Search literature for all possible foregrounds for PIXIE like experiment and determine amplitude and spectrum (SED)
-2) Fisher Matrix forecast
-
---just monopole brightness (specific intensity) no anisotropies, relative to CMBT=2.725K
-
-Signals TODO:
-- Extragalactic synchrotron (??)
-- #Emission from various spectral lines (e.g., CO -- see for example
-
-
-Signals:
+CMB Signals:
 - Blackbody CMB
 - Thermal SZ ("y") + relativistic effects
 - mu distortion
 - r-type ("residual", or non-mu/non-y) distortion
+- H and He recombination lines
+
+Foregrounds:
 - Cosmic Infrared Background (dusty galaxies)
 - Galactic dust
 - Galactic synchrotron
 - Extragalactic synchrotron/radio emission
 - Galactic "anomalous microwave emission" (perhaps spinning dust)
 - Galactic free-free emission
-- CIB
-- CO lines (and other lines)
-
-
+- CO lines
