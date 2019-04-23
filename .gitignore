@@ -10,3 +10,4 @@ templates/
 /data/
 *.txt
 *.npy
+*.npz
