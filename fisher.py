@@ -10,7 +10,7 @@ ndp = np.float64
 class FisherEstimation:
     def __init__(self, fmin=7.5e9, fmax=3.e12, fstep=15.e9, \
                  duration=12., bandpass=False, fsky=0.7, mult=1., \
-                 priors={}):
+                 priors={}, fncs=None):
         self.fmin = fmin
         self.fmax = fmax
         self.bandpass_step = 1.e8
@@ -22,7 +22,7 @@ class FisherEstimation:
         self.priors = priors
 
         self.setup()
-        self.set_signals()
+        self.set_signals(fncs)
         return
 
     def setup(self):
@@ -61,8 +61,8 @@ class FisherEstimation:
     def set_signals(self, fncs=None):
         if fncs is None:
             fncs = [sd.DeltaI_DeltaT, sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight,
-                    fg.thermal_dust_rad, fg.cib_rad, fg.jens_freefree_rad, 
-                    fg.jens_synch_rad, fg.spinning_dust, fg.co_rad]
+                    fg.thermal_dust, fg.cib, fg.freefree, 
+                    fg.synch, fg.spinning_dust, fg.co]
         self.signals = fncs
         self.args, self.p0, self.argvals = self.get_function_args()
         return

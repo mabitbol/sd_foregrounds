@@ -11,3 +11,4 @@ templates/
 *.txt
 *.npy
 *.npz
+outputs/
