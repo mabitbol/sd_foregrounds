@@ -15,22 +15,58 @@ def lnprob(theta, x, y, yerr):
     return lp + lnlike(theta, x, y, yerr)
 
 def lnlike(theta, x, y, yerr):
-    y_tot, dt = theta
-    model = sd.DeltaI_DeltaT(x, dt)
-    model += sd.DeltaI_y(x, y_tot)
+    y_tot, dt, ad, bd, td, As, alps = theta
+    model = sd.DeltaI_y(x, y_tot)
+    model += sd.DeltaI_DeltaT(x, dt)
+    model += fg.thermal_dust(x, ad, bd, td)
+    model += fg.synch(x, As, alps)
     return -0.5 * (np.sum((y-model)**2. * yerr**-2.))
 
 def lnprior(theta):
-    y_tot, dt = theta
+    y_tot, dt, ad, bd, td, As, alps = theta
+    
     if np.abs(y_tot) >= 1.:
         return -np.inf
     if np.abs(dt) >= 1.:
         return -np.inf
+
+    if ad < 0:
+        return -np.inf
+    if As < 0:
+        return -np.inf
+    #if bd <= 0:
+    #    return -np.inf
+    if td < 1 or td > 100:
+        return -np.inf
+
+    #if alps > 0:
+    #    return -np.inf
+    return 0.
+
+def lnprior(theta):
+    y_tot, dt, ad, bd, td, As, alps = theta
+    
+    if np.abs(y_tot) >= 1.:
+        return -np.inf
+    if np.abs(dt) >= 1.:
+        return -np.inf
+
+    if ad < 0:
+        return -np.inf
+    if As < 0:
+        return -np.inf
+    #if bd <= 0:
+    #    return -np.inf
+    if td < 1 or td > 100:
+        return -np.inf
+
+    #if alps > 0:
+    #    return -np.inf
     return 0.
 
 def run():
-    fname = 'cmb_only_bias_test'
-    nwalkers = 128
+    fname = 'cmb_only'
+    nwalkers = 512
     nsamps = 10000
     check_convergence = True
 
@@ -38,10 +74,14 @@ def run():
     fmin = 82.5e9
     fsky = 1.
     p0 = {}
-    sigs = [sd.DeltaI_DeltaT, sd.DeltaI_reltSZ_2param_yweight, sd.DeltaI_mu]
+    sigs = [sd.DeltaI_y, sd.DeltaI_DeltaT, \
+            fg.thermal_dust, fg.synch]
     fish = fisher.FisherEstimation(duration=bx, fmin=fmin, fsky=fsky, priors=p0, bandpass=False, fncs=sigs)
     fish.run_fisher_calculation()
     fish.print_errors()
+
+    ndim = len(fish.args)
+    pos = [fish.p0*(1. + 1.e-2*np.random.randn(ndim)) for i in range(nwalkers)]
 
     x = fish.center_frequencies
     noise = fish.noise
@@ -50,12 +90,6 @@ def run():
         y += sig(x)
     yerr = noise*np.random.randn(len(x))
     #y += yerr
-
-    # hack to grab initial values
-    sigs = [sd.DeltaI_DeltaT, sd.DeltaI_y]
-    fish = fisher.FisherEstimation(duration=bx, fmin=fmin, fsky=fsky, priors=p0, bandpass=False, fncs=sigs)
-    ndim = len(fish.args)
-    pos = [fish.p0*(1. + 1.e-2*np.random.randn(ndim)) for i in range(nwalkers)]
 
     output_dir = make_output_dir(fname)
     start_time = time.time()
