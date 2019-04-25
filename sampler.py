@@ -29,9 +29,9 @@ def lnprior(theta):
     return 0.
 
 def run():
-    fname = 'cmb_only_bias_test'
+    fname = 'backendfuckup'
     nwalkers = 128
-    nsamps = 10000
+    nsamps = 1000
     check_convergence = True
 
     bx = 30. * (12. / 8760) # months
@@ -54,6 +54,7 @@ def run():
     # hack to grab initial values
     sigs = [sd.DeltaI_DeltaT, sd.DeltaI_y]
     fish = fisher.FisherEstimation(duration=bx, fmin=fmin, fsky=fsky, priors=p0, bandpass=False, fncs=sigs)
+    fish.run_fisher_calculation()
     ndim = len(fish.args)
     pos = [fish.p0*(1. + 1.e-2*np.random.randn(ndim)) for i in range(nwalkers)]
 
