@@ -1,3 +1,4 @@
+#/mnt/zfsusers/mabitbol/anaconda/envs/py27/bin/python
 import numpy as np
 
 import fisher
@@ -14,35 +15,35 @@ def lnprob(theta, x, y, noise):
     return lnlike(theta, x, y, noise), lp
 
 def lnlike(theta, x, y, noise):
-    y_tot, dt = theta
+    dt, ytot = theta
     model = sd.DeltaI_DeltaT(x, dt)
-    model += sd.DeltaI_y(x, y_tot)
+    model += sd.DeltaI_y(x, ytot)
     return -0.5 * (np.sum((y-model)**2. * noise**-2.))
 
 def lnprior(theta):
-    y_tot, dt = theta
-    if np.abs(y_tot) >= 1.:
-        return -np.inf
+    dt, ytot = theta
     if np.abs(dt) >= 1.:
+        return -np.inf
+    if np.abs(ytot) >= 1.:
         return -np.inf
     return 0.
 
 def run():
-    fname = 'backendpleasework'
+    fname = 'synch_ff_bias'
     output_dir = make_output_dir(fname)
 
-    nwalkers = 128
-    nsamps = 10000
+    nwalkers = 512
+    nsamps = 100000
 
     bx = 30. * (12. / 8760) # in months
     fmin = 82.5e9
     fsky = 1.
     p0 = {}
 
-    sigs = [sd.DeltaI_DeltaT, sd.DeltaI_y]
+    sigs = [sd.DeltaI_DeltaT, sd.DeltaI_y, fg.synch, fg.freefree]
     fish = fisher.FisherEstimation(duration=bx, fmin=fmin, fsky=fsky, priors=p0, bandpass=False, fncs=sigs)
-    fish.run_fisher_calculation()
-    fish.print_errors()
+    #fish.run_fisher_calculation()
+    #fish.print_errors()
 
     x = fish.center_frequencies
     noise = fish.noise
@@ -53,9 +54,9 @@ def run():
     #y += yerr
 
     # hack to grab initial values
-    #sigs = [sd.DeltaI_DeltaT, sd.DeltaI_y]
-    #fish = fisher.FisherEstimation(duration=bx, fmin=fmin, fsky=fsky, priors=p0, bandpass=False, fncs=sigs)
-    #fish.run_fisher_calculation()
+    sigs = [sd.DeltaI_DeltaT, sd.DeltaI_y]
+    fish = fisher.FisherEstimation(duration=bx, fmin=fmin, fsky=fsky, priors=p0, bandpass=False, fncs=sigs)
+    fish.run_fisher_calculation()
     np.savez(output_dir+'argvals', names=fish.args, p0=fish.p0, errors=fish.errors, x=x, y=y, noise=noise) 
 
     chain_fname = output_dir + 'chains.h5'

@@ -12,3 +12,6 @@ templates/
 *.npy
 *.npz
 outputs/
+.bashrc
+*.out
+*.sh
