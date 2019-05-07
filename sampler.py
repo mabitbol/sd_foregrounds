@@ -1,4 +1,3 @@
-#/mnt/zfsusers/mabitbol/anaconda/envs/py27/bin/python
 import numpy as np
 
 import fisher
