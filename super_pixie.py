@@ -8,16 +8,14 @@ import foregrounds as fg
 ndp = np.float64
 
 class FisherEstimation:
-    def __init__(self, duration, priors={}, fncs=None):
-        self.bandpass_step = 1.e8
-        self.duration = duration #years
+    def __init__(self, mults=[1., 1., 1.], dfms=[1., 1., 1.], priors={}, fncs=None):
         self.priors = priors
 
-        self.setup_channels_noise()
+        self.setup_channels_noise(mults, dfms)
         self.set_signals(fncs)
         return
 
-    def setup_channels_noise(self):
+    def setup_channels_noise(self, mults, dfms):
         oneyr = 365.25 * 24. * 3600. # 1yr in seconds
         ghz = 1.e9
         jy = 1.e26
@@ -30,13 +28,28 @@ class FisherEstimation:
         mf_nu = mf_data[:, 0]
         hf_nu = hf_data[:, 0] 
 
-        lf_noise = lf_data[:, 1]
-        mf_noise = mf_data[:, 1]
-        hf_noise = hf_data[:, 1]
+        lf_noise = lf_data[:, 1] * mults[0]
+        mf_noise = mf_data[:, 1] * mults[1]
+        hf_noise = hf_data[:, 1] * mults[2]
+
+        lf_nu, lf_noise = self.interpolate_noise(lf_nu, lf_noise, dfms[0])
+        mf_nu, mf_noise = self.interpolate_noise(mf_nu, mf_noise, dfms[1])
+        hf_nu, hf_noise = self.interpolate_noise(hf_nu, hf_noise, dfms[2])
 
         self.frequencies = np.concatenate((lf_nu, mf_nu, hf_nu)) * ghz
         self.noise = np.concatenate((lf_noise, mf_noise, hf_noise)) / np.sqrt(oneyr) * jy
         return 
+
+    def interpolate_noise(self, nus, noise, dfm):
+        nustep = nus[1] - nus[0]
+        numin = nus.min() - nustep/2.
+        numax = nus.max() + nustep/2.
+
+        newstep = nustep * dfm
+        N = int(np.round( (numax-numin)/newstep ))
+        newnus = lfmins + newstep/2. + np.arange(N) * newstep
+        newnoise = np.interp(newnus, nus, noise) * (nustep / newstep)
+        return newnus, newnoise
 
     def run_fisher_calculation(self):
         N = len(self.args)
@@ -69,7 +82,7 @@ class FisherEstimation:
     def set_signals(self, fncs=None):
         if fncs is None:
             fncs = [sd.DeltaI_DeltaT, sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight,
-                    fg.thermal_dust, fg.cib, fg.freefree, fg.synch,
+                    fg.thermal_dust, fg.cib, fg.freefree, fg.synch_curv,
                     fg.spinning_dust, fg.co]
         self.signals = fncs
         self.args, self.p0, self.argvals = self.get_function_args()
