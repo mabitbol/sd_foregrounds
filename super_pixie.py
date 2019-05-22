@@ -8,14 +8,14 @@ import foregrounds as fg
 ndp = np.float64
 
 class FisherEstimation:
-    def __init__(self, mults=[1., 1., 1.], dfms=[1., 1., 1.], priors={}, fncs=None):
+    def __init__(self, mults=[1., 1., 1.], dfms=[1., 1., 1.], priors={}, fncs=None, hfmax=6.e3):
         self.priors = priors
 
-        self.setup_channels_noise(mults, dfms)
+        self.setup_channels_noise(mults, dfms, hfmax)
         self.set_signals(fncs)
         return
 
-    def setup_channels_noise(self, mults, dfms):
+    def setup_channels_noise(self, mults, dfms, hfmax):
         oneyr = 365.25 * 24. * 3600. # 1yr in seconds
         ghz = 1.e9
         jy = 1.e26
@@ -27,10 +27,14 @@ class FisherEstimation:
         lf_nu = lf_data[:, 0] 
         mf_nu = mf_data[:, 0]
         hf_nu = hf_data[:, 0] 
+        hfcut = hf_nu < hfmax
 
         lf_noise = lf_data[:, 1] * mults[0]
         mf_noise = mf_data[:, 1] * mults[1]
         hf_noise = hf_data[:, 1] * mults[2]
+    
+        hf_nu = hf_nu[hfcut]
+        hf_noise = hf_noise[hfcut]
 
         lf_nu, lf_noise = self.interpolate_noise(lf_nu, lf_noise, dfms[0])
         mf_nu, mf_noise = self.interpolate_noise(mf_nu, mf_noise, dfms[1])
@@ -46,8 +50,8 @@ class FisherEstimation:
         numax = nus.max() + nustep/2.
 
         newstep = nustep * dfm
-        N = int(np.round( (numax-numin)/newstep ))
-        newnus = lfmins + newstep/2. + np.arange(N) * newstep
+        N = int(np.ceil( (numax-numin)/newstep ))
+        newnus = numin + newstep/2. + np.arange(N) * newstep
         newnoise = np.interp(newnus, nus, noise) * (nustep / newstep)
         return newnus, newnoise
 
@@ -82,7 +86,7 @@ class FisherEstimation:
     def set_signals(self, fncs=None):
         if fncs is None:
             fncs = [sd.DeltaI_DeltaT, sd.DeltaI_mu, sd.DeltaI_reltSZ_2param_yweight,
-                    fg.thermal_dust, fg.cib, fg.freefree, fg.synch_curv,
+                    fg.thermal_dust, fg.cib, fg.freefree, fg.synch,
                     fg.spinning_dust, fg.co]
         self.signals = fncs
         self.args, self.p0, self.argvals = self.get_function_args()
