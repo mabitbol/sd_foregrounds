@@ -9,7 +9,7 @@ clight=299792458.0 #MKS
 m_elec = 510.999 #keV!
 jy = 1.e26
 
-ndp = np.float64
+ndp = np.float128
 
 def DeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4):
     X = hplanck*freqs/(kboltz*TCMB)

@@ -5,7 +5,10 @@ from scipy import interpolate
 import spectral_distortions as sd
 import foregrounds as fg
 
-ndp = np.float64
+from mpmath import mp, matrix
+
+ndp = np.float128
+mp.prec = 500
 
 class FisherEstimation:
     def __init__(self, mults=[1., 1., 1.], dfms=[1., 1., 1.], priors={}, fncs=None, hfmax=6.e3):
@@ -63,7 +66,8 @@ class FisherEstimation:
             if k in self.args and self.priors[k] > 0:
                 kindex = np.where(self.args == k)[0][0]
                 F[kindex, kindex] += 1. / (self.priors[k] * self.argvals[k])**2
-        self.cov = np.linalg.solve(F, np.identity(N, dtype=ndp))
+        print(mp)
+        self.cov = matrix(F)**-1        
         self.get_errors()
         return
 
