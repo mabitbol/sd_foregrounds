@@ -11,8 +11,8 @@ def synch_curv(nu, As=288., alps=-0.82, w2s=0.2):
     nu0s = 100.e9
     return (As * (nu / nu0s) ** alps * (1. + 0.5 * w2s * np.log(nu / nu0s) ** 2)).astype(ndp)
 
-def synch(nu, As=1902., alps=-0.82):
-    nu0s = 10.e9
+def synch(nu, As=288., alps=-0.82):
+    nu0s = 100.e9
     return (As * (nu / nu0s) ** alps).astype(ndp)
 
 def freefree(nu, EM=300.):

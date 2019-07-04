@@ -62,3 +62,9 @@ def recombination(freqs, scale=1.0):
     recomb = rdata[:,1]
     template = interpolate.interp1d(np.log10(fs), np.log10(recomb), fill_value=np.log10(1e-30), bounds_error=False)
     return scale * 10.0**template(np.log10(freqs))
+
+def recombination(freqs, scale=1.0):
+    rdata = np.loadtxt('templates/recombination/total_spectrum_f.dat')
+    fs = rdata[:,0] * 1e9
+    recomb = rdata[:,1]
+    return scale * np.interp(freqs, fs, recomb) * 1.e26

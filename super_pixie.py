@@ -27,12 +27,12 @@ class FisherEstimation:
         lf_nu = lf_data[:, 0] 
         mf_nu = mf_data[:, 0]
         hf_nu = hf_data[:, 0] 
-        hfcut = hf_nu < hfmax
 
         lf_noise = lf_data[:, 1] * mults[0]
         mf_noise = mf_data[:, 1] * mults[1]
         hf_noise = hf_data[:, 1] * mults[2]
     
+        hfcut = hf_nu < hfmax
         hf_nu = hf_nu[hfcut]
         hf_noise = hf_noise[hfcut]
 
@@ -40,8 +40,13 @@ class FisherEstimation:
         mf_nu, mf_noise = self.interpolate_noise(mf_nu, mf_noise, dfms[1])
         hf_nu, hf_noise = self.interpolate_noise(hf_nu, hf_noise, dfms[2])
 
-        self.frequencies = np.concatenate((lf_nu, mf_nu, hf_nu)) * ghz
-        self.noise = np.concatenate((lf_noise, mf_noise, hf_noise)) / np.sqrt(oneyr) * jy
+        if np.any(mults==0):
+            # MF only
+            self.frequencies = mf_nu * ghz
+            self.noise = mf_noise / np.sqrt(oneyr) * jy
+        else:
+            self.frequencies = np.concatenate((lf_nu, mf_nu, hf_nu)) * ghz
+            self.noise = np.concatenate((lf_noise, mf_noise, hf_noise)) / np.sqrt(oneyr) * jy
         return 
 
     def interpolate_noise(self, nus, noise, dfm):
