@@ -15,3 +15,4 @@ outputs/
 .bashrc
 *.out
 *.sh
+.DS_store

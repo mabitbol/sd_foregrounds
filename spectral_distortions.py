@@ -11,7 +11,7 @@ jy = 1.e26
 
 ndp = np.float128
 
-def DeltaI_DeltaT(freqs, DeltaT_amp=1.2e-4):
+def DeltaI_DeltaT(freqs, DeltaT_amp=1.e-4):
     X = hplanck*freqs/(kboltz*TCMB)
     return (DeltaT_amp * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * jy).astype(ndp)
 
@@ -19,7 +19,7 @@ def DeltaI_mu(freqs, mu_amp=2.e-8):
     X = hplanck*freqs/(kboltz*TCMB)
     return (mu_amp * (X / 2.1923 - 1.0)/X * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * jy).astype(ndp)
 
-def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.245):
+def DeltaI_reltSZ_2param_yweight(freqs, y_tot=2.e-6, kT_yweight=1.3):
     tau = y_tot/kT_yweight * m_elec
     X = hplanck*freqs/(kboltz*TCMB)
     Xtwid = X*np.cosh(0.5*X)/np.sinh(0.5*X)
@@ -31,7 +31,7 @@ def DeltaI_reltSZ_2param_yweight(freqs, y_tot=1.77e-6, kT_yweight=1.245):
     gfuncrel_only=Y1*(kT_yweight/m_elec)+Y2*(kT_yweight/m_elec)**2.0+Y3*(kT_yweight/m_elec)**3.0
     return (X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0 * (y_tot * Y0 + tau * (kT_yweight/m_elec) * gfuncrel_only) * jy).astype(ndp)
 
-def DeltaI_y(freqs, y_tot=1.77e-6):
+def DeltaI_y(freqs, y_tot=2.e-6):
     X = hplanck*freqs/(kboltz*TCMB)
     return ((y_tot * (X / np.tanh(X/2.0) - 4.0) * X**4.0 * np.exp(X)/(np.exp(X) - 1.0)**2.0 * 2.0*(kboltz*TCMB)**3.0 / (hplanck*clight)**2.0) * jy).astype(ndp)
 
@@ -57,14 +57,7 @@ def blackbody_H0(nu, H0=7.2e-11):
     return (bbTcmb - bbT).astype(ndp)
 
 def recombination(freqs, scale=1.0):
-    rdata = np.loadtxt('templates/recombination/total_spectrum_f.dat')
+    rdata = np.loadtxt('templates/CRR.dat')
     fs = rdata[:,0] * 1e9
     recomb = rdata[:,1]
-    template = interpolate.interp1d(np.log10(fs), np.log10(recomb), fill_value=np.log10(1e-30), bounds_error=False)
-    return scale * 10.0**template(np.log10(freqs))
-
-def recombination(freqs, scale=1.0):
-    rdata = np.loadtxt('templates/recombination/total_spectrum_f.dat')
-    fs = rdata[:,0] * 1e9
-    recomb = rdata[:,1]
-    return scale * np.interp(freqs, fs, recomb) * 1.e26
+    return scale * np.interp(freqs, fs, recomb)
