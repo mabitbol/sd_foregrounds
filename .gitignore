@@ -5,8 +5,9 @@
 *.fits
 old/
 plots/
-templates/
 .idea/
 /data/
 *.txt
 *.npy
+outputs/
+.DS_Store
