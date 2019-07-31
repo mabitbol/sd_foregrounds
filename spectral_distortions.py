@@ -2,7 +2,7 @@ import numpy as np
 
 ### See components for a better description of the signals. 
 
-TCMB = 2.725 #Kelvin
+TCMB = 2.7255 #Kelvin
 hplanck = 6.626070150e-34  # MKS
 kboltz = 1.380649e-23  # MKS
 clight=299792458.0 #MKS
