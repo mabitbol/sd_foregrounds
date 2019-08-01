@@ -1,12 +1,12 @@
-Noise in Synthesized Frequency Channels for 1-Second Integration
- 
-Configuration for High-Frequency FTS
-     Min Freq = 403.4 GHz
-     Max Freq = 5994.1 GHz
-     Channel Width = 57.6 GHz
- 
-Frequency     Intensity     Polarization
-  (GHz)     (W/m^2/Hz/sr)   (W/m^2/Hz/sr)
+#Noise in Synthesized Frequency Channels for 1-Second Integration
+# 
+#Configuration for High-Frequency FTS
+#     Min Freq = 403.4 GHz
+#     Max Freq = 5994.1 GHz
+#     Channel Width = 57.6 GHz
+# 
+#Frequency     Intensity     Polarization
+#  (GHz)     (W/m^2/Hz/sr)   (W/m^2/Hz/sr)
  403.4         6.45E-23         4.98E-23
  461.1         6.55E-23         5.06E-23
  518.7         6.67E-23         5.16E-23
