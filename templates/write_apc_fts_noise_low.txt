@@ -1,0 +1,22 @@
+Noise in Synthesized Frequency Channels for 1-Second Integration
+ 
+Configuration for Low-Frequency FTS
+     Min Freq = 9.6 GHz
+     Max Freq = 38.4 GHz
+     Channel Width = 2.4 GHz
+ 
+Frequency     Intensity     Polarization
+  (GHz)     (W/m^2/Hz/sr)   (W/m^2/Hz/sr)
+   9.6         2.87E-23         1.43E-23
+  12.0         2.87E-23         1.43E-23
+  14.4         2.87E-23         1.43E-23
+  16.8         2.87E-23         1.43E-23
+  19.2         2.87E-23         1.43E-23
+  21.6         2.87E-23         1.43E-23
+  24.0         2.87E-23         1.43E-23
+  26.4         2.87E-23         1.43E-23
+  28.8         2.87E-23         1.43E-23
+  31.2         2.87E-23         1.43E-23
+  33.6         2.87E-23         1.43E-23
+  36.0         2.87E-23         1.43E-23
+  38.4         2.87E-23         1.43E-23
