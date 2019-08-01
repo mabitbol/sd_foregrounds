@@ -6,10 +6,7 @@
 old/
 plots/
 .idea/
-/data/
-*.txt
-*.npy
-*.npz
+data/
 outputs/
 .bashrc
 *.out
