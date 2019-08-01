@@ -5,7 +5,6 @@
 *.fits
 old/
 plots/
-templates/
 .idea/
 /data/
 *.txt
