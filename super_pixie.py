@@ -8,14 +8,15 @@ import foregrounds as fg
 ndp = np.float64
 
 class FisherEstimation:
-    def __init__(self, mults=[1., 1., 1.], dfms=[1., 1., 1.], priors={}, fncs=None, hfmax=6.e3):
+    def __init__(self, mults=[1., 1., 1.], dfms=[1., 1., 1.], priors={},
+                    fncs=None, hfmax=3.e3, fmins=[None, None, None], fmaxs=[None, None, None]):
         self.priors = priors
 
-        self.setup_channels_noise(mults, dfms, hfmax)
+        self.setup_channels_noise(mults, dfms, hfmax, fmins, fmaxs)
         self.set_signals(fncs)
         return
 
-    def setup_channels_noise(self, mults, dfms, hfmax):
+    def setup_channels_noise(self, mults, dfms, hfmax, fmins, fmaxs):
         oneyr = 365.25 * 24. * 3600. # 1yr in seconds
         ghz = 1.e9
         jy = 1.e26
@@ -36,23 +37,29 @@ class FisherEstimation:
         hf_nu = hf_nu[hfcut]
         hf_noise = hf_noise[hfcut]
 
-        lf_nu, lf_noise = self.interpolate_noise(lf_nu, lf_noise, dfms[0])
-        mf_nu, mf_noise = self.interpolate_noise(mf_nu, mf_noise, dfms[1])
-        hf_nu, hf_noise = self.interpolate_noise(hf_nu, hf_noise, dfms[2])
+        if fmaxs[2] > hfmax:
+            print("Bad usage of fmax, dont do this to yourself.")
 
-        if np.any(mults==0):
-            # MF only
-            self.frequencies = mf_nu * ghz
-            self.noise = mf_noise / np.sqrt(oneyr) * jy
-        else:
-            self.frequencies = np.concatenate((lf_nu, mf_nu, hf_nu)) * ghz
-            self.noise = np.concatenate((lf_noise, mf_noise, hf_noise)) / np.sqrt(oneyr) * jy
+        lf_nu, lf_noise = self.interpolate_noise(lf_nu, lf_noise, dfms[0], fmins[0], fmaxs[0])
+        mf_nu, mf_noise = self.interpolate_noise(mf_nu, mf_noise, dfms[1], fmins[1], fmaxs[1])
+        hf_nu, hf_noise = self.interpolate_noise(hf_nu, hf_noise, dfms[2], fmins[2], fmaxs[2])
+
+        self.frequencies = np.concatenate((lf_nu, mf_nu, hf_nu)) * ghz
+        self.noise = np.concatenate((lf_noise, mf_noise, hf_noise)) / np.sqrt(oneyr) * jy
+        
+        mask = self.frequencies != 0 
+        self.frequencies = self.frequencies[mask]
+        self.noise = self.noise[mask]
         return 
 
-    def interpolate_noise(self, nus, noise, dfm):
+    def interpolate_noise(self, nus, noise, dfm, fmin, fmax):
         nustep = nus[1] - nus[0]
         numin = nus.min() - nustep/2.
         numax = nus.max() + nustep/2.
+        if fmin and fmin < nus.min():
+            numin = fmin - nustep/2.
+        if fmax and fmax > nus.max():
+            numax = fmax + nustep/2.
 
         newstep = nustep * dfm
         N = int(np.ceil( (numax-numin)/newstep ))
